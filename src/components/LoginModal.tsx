@@ -41,6 +41,7 @@ export default function LoginModal({ open, handleClose }) {
           onClick={() => {
             console.log("as guest");
           }}
+          sx={{ textAlign: "right" }}
         >
           <Typography sx={{ mt: 2, color: "#3369ba" }}>Continue as guest</Typography>
         </Link>
@@ -50,6 +51,7 @@ export default function LoginModal({ open, handleClose }) {
           onClick={() => {
             console.log("as guest");
           }}
+          sx={{ textAlign: "right" }}
         >
           <Typography sx={{ mt: 0, color: "#3369ba" }}>Create an account</Typography>
         </Link>
