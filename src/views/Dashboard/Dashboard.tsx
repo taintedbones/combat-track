@@ -1,5 +1,6 @@
 import logo from "../../styles/logo.svg";
 import "../../styles/App.css";
+import DataTable from "../../components/DataTable";
 
 export default function Dashboard() {
   return (
@@ -13,6 +14,9 @@ export default function Dashboard() {
           Learn React
         </a>
       </header>
+      <body>
+        <DataTable />
+      </body>
     </div>
   );
 }
