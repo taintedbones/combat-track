@@ -1,5 +1,9 @@
 import { createTheme } from "@mui/material";
-import { green, grey } from "@mui/material/colors";
+import { orange, grey } from "@mui/material/colors";
+
+/**
+ * @dev feel free to make your own color scheme here
+ */
 
 const theme = createTheme({
   palette: {
@@ -7,7 +11,7 @@ const theme = createTheme({
       main: grey[800],
     },
     secondary: {
-      main: green[700],
+      main: orange[700],
     },
   },
 });

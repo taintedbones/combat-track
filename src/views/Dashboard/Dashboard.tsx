@@ -14,9 +14,6 @@ export default function Dashboard() {
           Learn React
         </a>
       </header>
-      <body>
-        <DataTable />
-      </body>
     </div>
   );
 }
