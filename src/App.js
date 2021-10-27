@@ -1,17 +1,24 @@
-import { BrowserRouter as Router, Route } from "react-router-dom";
-import Dashboard from "./views/Dashboard/Dashboard";
-import Navbar from "./components/Navbar";
+import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
+import Combat from './views/Combat/Combat';
+import Navbar from './components/Navbar/Navbar';
+import EditActors from './views/EditActor/EditActors';
+import EditScenarios from './views/EditScenarios/EditScenarios';
 
 function App() {
   return (
     <Router>
       <Navbar />
-      <Route exact path="/">
-        <Dashboard />
+      <Route exact path='/'>
+        <Redirect to='/combat' />
       </Route>
-      {/* Login doesn't have to be a separate page render, can just be modal */}
-      <Route exact path="/login">
-        <p>Login page/modal will go here</p>
+      <Route exact path='/combat'>
+        <Combat />
+      </Route>
+      <Route exact path='/actors'>
+        <EditActors />
+      </Route>
+      <Route exact path='/scenarios'>
+        <EditScenarios />
       </Route>
     </Router>
   );
