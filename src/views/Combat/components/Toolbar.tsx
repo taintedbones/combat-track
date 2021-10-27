@@ -7,8 +7,8 @@ const typography = {
 
 export default function Toolbar() {
   return (
-    <Grid container spacing={4}>
-      <Grid container spacing={4}>
+    <Grid item container spacing={4}>
+      <Grid item container spacing={4}>
         <Grid item xs={2}>
           <Typography sx={typography}>Current Turn:</Typography>
         </Grid>

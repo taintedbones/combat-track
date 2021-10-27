@@ -1,8 +1,9 @@
 .container {
   text-align: center;
   background-color: #282c34;
-  height: calc(100vh - 64px);
-  padding: 64px 5% 0% 5%;
+  min-height: 100vh;
+  padding: 2% 5% 0% 5%;
+  color: white;
 }
 
 .App-logo {
