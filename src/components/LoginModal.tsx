@@ -14,7 +14,7 @@ const style = {
   p: "30px 20px 20px 20px",
 };
 
-export default function LoginModal({ open, handleClose }) {
+export default function LoginModal({ open, login, handleClose }) {
   return (
     <Modal
       open={open}
@@ -55,7 +55,7 @@ export default function LoginModal({ open, handleClose }) {
         >
           <Typography sx={{ mt: 0, color: "#3369ba" }}>Create an account</Typography>
         </Link>
-        <Button variant="contained" sx={{ mt: 2 }} fullWidth onClick={handleClose}>
+        <Button variant="contained" sx={{ mt: 2 }} fullWidth onClick={login}>
           Login
         </Button>
       </Box>
