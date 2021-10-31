@@ -1,5 +1,5 @@
 import { Grid, Typography } from "@mui/material";
-import DataTable from "../../components/DataTables/CombatDataTable";
+import DataTable from "../../components/DataTables/ActorsDataTable";
 import ActorToolbar from "./components/ActorToolbar";
 import "../../styles/App.css";
 
