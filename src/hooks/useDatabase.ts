@@ -16,6 +16,7 @@ export const useActors = () => {
         const actorsList = actorsSnapshot.docs.map((doc) => doc.data());
         const actorsIdList = actorsList.map((actor, index) => ({ ...actor, id: index }));
         // console.log(actorsIdList);
+        setLoading(false);
         setActors(actorsIdList);
         return actorsIdList;
       } catch (error) {
@@ -44,6 +45,7 @@ export const useScenarios = () => {
         const scenariosList = scenariosSnapshot.docs.map((doc) => doc.data());
         const scenariosIdList = scenariosList.map((actor, index) => ({ ...actor, id: index }));
         // console.log(scenariosIdList);
+        setLoading(false);
         setScenarios(scenariosIdList);
         return scenariosIdList;
       } catch (error) {
@@ -72,6 +74,7 @@ export const useUsers = () => {
         const usersList = usersSnapshot.docs.map((doc) => doc.data());
         const usersIdList = usersList.map((actor, index) => ({ ...actor, id: index }));
         // console.log(usersIdList);
+        setLoading(false);
         setUsers(usersIdList);
         return usersIdList;
       } catch (error) {

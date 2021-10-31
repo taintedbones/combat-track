@@ -2,27 +2,34 @@ import { useState } from "react";
 import { Box, AppBar, Toolbar, Button, IconButton, Typography } from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import Menu from "./components/Menu";
-import LoginModal from "../LoginModal";
+// import LoginModal from "../LoginModal";
+
+import useAuth from "../../hooks/useAuth";
+import { User } from "@firebase/auth";
 
 export default function Navbar() {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [user, setUser] = useState<User | false>(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { signin, signinAnon, signout } = useAuth();
 
   // callback to authenticate user
-  const authenticate = async () => {
+  const login = async () => {
     try {
-      await console.log("valid credentials");
-      setLoggedIn(true);
-      setModalOpen(false);
+      const user = await signin();
+      console.log(user);
+      setUser(user);
     } catch (error) {
-      //catch error and display return message in the modal
-      await console.log("invalid credentials");
+      console.error("There was an error logging into your google account. Try again.");
     }
   };
 
-  const logout = () => {
-    setLoggedIn(false);
+  const logout = async () => {
+    try {
+      await signout();
+      setUser(false);
+    } catch (error) {
+      console.error("There was an error logging out of your google account. Try again.");
+    }
   };
 
   return (
@@ -34,17 +41,17 @@ export default function Navbar() {
               DnD Tracker
             </Typography>
 
-            {loggedIn ? (
+            {user ? (
               <>
-                <Typography variant="h6" component="div" sx={{ paddingRight: "10px" }}>
-                  {`<USERNAME>`}
+                <Typography variant="h6" component="div" sx={{ mr: 4 }}>
+                  {user.isAnonymous ? `Guest` : `${user.displayName}`}
                 </Typography>
-                <Button color="inherit" onClick={logout}>
+                <Button variant="contained" color="info" onClick={logout}>
                   Logout
                 </Button>
               </>
             ) : (
-              <Button color="inherit" onClick={() => setModalOpen(true)}>
+              <Button variant="contained" color="info" onClick={login}>
                 Login
               </Button>
             )}
@@ -63,7 +70,7 @@ export default function Navbar() {
         </AppBar>
       </Box>
       <Menu isOpen={menuOpen} handleClose={() => setMenuOpen(false)} />
-      <LoginModal open={modalOpen} login={authenticate} handleClose={() => setModalOpen(false)} />
+      {/* <LoginModal open={modalOpen} handleClose={() => setModalOpen(false)} /> */}
     </>
   );
 }
