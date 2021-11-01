@@ -7,6 +7,7 @@ export const columns: GridColDef[] = [
     flex: 1,
     headerClassName: "col-header",
     editable: true,
+    sortable: false,
   },
   {
     field: "initiative",
@@ -14,6 +15,8 @@ export const columns: GridColDef[] = [
     flex: 1,
     headerClassName: "col-header",
     editable: true,
+    sortable: false,
+    type: "number",
   },
   {
     field: "hp",
@@ -21,6 +24,8 @@ export const columns: GridColDef[] = [
     flex: 1,
     headerClassName: "col-header",
     editable: true,
+    sortable: false,
+    type: "number",
   },
   {
     field: "ac",
@@ -28,6 +33,8 @@ export const columns: GridColDef[] = [
     flex: 1,
     headerClassName: "col-header",
     editable: true,
+    sortable: false,
+    type: "number",
   },
   {
     field: "dc",
@@ -35,6 +42,8 @@ export const columns: GridColDef[] = [
     flex: 1,
     headerClassName: "col-header",
     editable: true,
+    sortable: false,
+    type: "number",
   },
   {
     field: "type",
@@ -42,6 +51,7 @@ export const columns: GridColDef[] = [
     flex: 1,
     headerClassName: "col-header",
     editable: true,
+    sortable: false,
   },
   {
     field: "notes",
@@ -49,5 +59,6 @@ export const columns: GridColDef[] = [
     flex: 1,
     headerClassName: "col-header",
     editable: true,
+    sortable: false,
   },
 ];

@@ -14,11 +14,19 @@ export const useActors = () => {
         const actorsCol = collection(database, "actors");
         const actorsSnapshot = await getDocs(actorsCol);
         const actorsList = actorsSnapshot.docs.map((doc) => doc.data());
-        const actorsIdList = actorsList.map((actor, index) => ({ ...actor, id: index }));
+        const actorsIdList = actorsList.map((actor, index) => Object.defineProperty(actor, "id", { value: index }));
+        const sortedList = actorsIdList.sort((a, b) => {
+          if (a.initiative === b.initiative) {
+            return b.name - a.name;
+          } else {
+            return b.initiative - a.initiative;
+          }
+        });
+        const temp = sortedList.map((actor, index) => Object.defineProperty(actor, "index", { value: index }));
         // console.log(actorsIdList);
         setLoading(false);
-        setActors(actorsIdList);
-        return actorsIdList;
+        setActors(temp);
+        return sortedList;
       } catch (error) {
         console.error(error);
         setLoading(false);

@@ -5,7 +5,7 @@ const typography = {
   fontSize: "2rem",
 };
 
-export default function Toolbar({ roundNum, actorTurn, endTurn }) {
+export default function Toolbar({ roundNum, actorTurn, endTurn, onAddActor }) {
   return (
     <Grid item container spacing={4}>
       <Grid item container spacing={4}>
@@ -20,7 +20,7 @@ export default function Toolbar({ roundNum, actorTurn, endTurn }) {
         </Grid>
       </Grid>
       <Grid item xs>
-        <Button variant="contained" fullWidth>
+        <Button variant="contained" fullWidth onClick={onAddActor}>
           Add Actor
         </Button>
       </Grid>
