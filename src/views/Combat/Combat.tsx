@@ -41,7 +41,7 @@ export function renderSpinner(params) {
     <TextField
       type="number"
       defaultValue={params.value}
-      inputProps={{ min: 0, max: 20, style: { color: 'white', fontSize: 14 } }}
+      inputProps={{ min: 0, max: 99, style: { color: 'white', fontSize: 14 } }}
     />
   );
 }
