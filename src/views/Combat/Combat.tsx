@@ -1,66 +1,134 @@
-import { useEffect, useState } from "react";
-import { useActors } from "../../hooks/useDatabase";
-import { Grid, Typography } from "@mui/material";
-import Toolbar from "./components/Toolbar";
-import DataTable from "../../components/DataTables/CombatDataTable";
-import "../../styles/App.css";
+import React, { useEffect, useState } from 'react';
+import { useScenarios } from '../../hooks/useDatabase';
+import { Grid, TextField } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import CombatToolbar from './components/Toolbar';
+import CombatDataTable from '../../components/DataTables/CombatDataTable';
+import CombatSetupDataTable from '../../components/DataTables/CombatSetupDataTable';
+import CombatSetupToolbar from './components/SetupToolbar';
+import '../../styles/App.css';
+
+const useStyles = makeStyles(() => {
+  return {
+    root: {
+      paddingTop: '100px',
+    },
+    dataGrid: {
+      color: 'white',
+      width: '100%',
+      height: '60vh',
+      '& .col-header': {
+        backgroundColor: 'purple',
+      },
+      '& .rowTheme-selected-true': {
+        backgroundColor: '#ED6C02',
+      },
+    },
+    grid: {
+      height: '80%',
+    },
+  };
+});
+
+export function renderSpinner(params) {
+  return (
+    <TextField
+      type="number"
+      defaultValue={params.value}
+      inputProps={{ min: 0, max: 20, style: { color: 'white', fontSize: 14 } }}
+    />
+  );
+}
 
 export default function Combat() {
-  const { loading, actors } = useActors();
-  const [currentActors, setCurrentActors] = useState<any>([]);
-  const [size, setSize] = useState(actors.length);
+  const classes = useStyles();
+  const { loading, scenarios } = useScenarios();
+  const [combatStarted, setCombatStarted] = useState(false);
   const [roundNum, setRoundNum] = useState(1);
+  const [currTurnName, setCurrTurnName] = useState<string>();
+  const [currTurnId, setCurrTurnId] = useState<number>();
   const [turnIndex, setTurnIndex] = useState(0);
-  const [actorName, setActorName] = useState("Loading...");
+  const [sortedScenario, setSortedScenario] = useState<any[]>([]); // holds array of actors in combat scenario
 
-  useEffect(() => {
-    if (actors.length > 0 && !loading) {
-      console.log(actors);
-      setCurrentActors(actors);
-      setSize(actors.length);
+  function CombatView() {
+    if (combatStarted) {
+      return (
+        <React.Fragment>
+          <CombatDataTable
+            actors={sortedScenario}
+            styling={classes.dataGrid}
+            turnId={currTurnId}
+            
+          />
+          <CombatToolbar
+            onBackClicked={handleBackClicked}
+            onAddActor={handleAddActor}
+            currentTurnName={currTurnName}
+            roundNum={roundNum}
+            endTurn={handleTurnEnd}
+          />
+        </React.Fragment>
+      );
+    } else {
+      return (
+        <React.Fragment>
+          <CombatSetupDataTable
+            actors={scenarios}
+            loading={loading}
+            styling={classes.dataGrid}
+          />
+          <CombatSetupToolbar onStartCombat={handleStartCombat} />
+        </React.Fragment>
+      );
     }
-  }, [loading, actors]);
+  }
 
-  useEffect(() => {
-    const setActor = () => {
-      setActorName(currentActors[turnIndex].name);
-    };
-    if (currentActors.length > 0 && !loading) {
-      setActor();
-    }
-  }, [turnIndex]);
+  const handleStartCombat = () => {
+    // check if all initiatives have value > 0 before changing state
+    // display error modal if necessary
+    setCombatStarted(true);
 
+    // get  sorted copy of table by initiative
+    setSortedScenario(() => {
+      return scenarios.slice().sort((a, b) => b.initiative - a.initiative);
+    });
+  };
+
+  const handleBackClicked = () => {
+    // display prompt asking if user is sure at some point
+    setCombatStarted(false);
+    setRoundNum(0);
+  };
+
+  // manages turn index & round number at end of each actor turn
   const handleTurnEnd = () => {
-    if (turnIndex + 1 === size) {
+    if (turnIndex + 1 === sortedScenario.length) {
       setTurnIndex(0);
       setRoundNum(roundNum + 1);
-      console.log("ended turn");
-      console.log("new round");
     } else {
       setTurnIndex(turnIndex + 1);
-      console.log("ended turn");
     }
   };
 
-  const handleCellEdit = (e) => {};
+  const handleDeleteActor = () => {
 
-  const addActor = () => {
+  };
+
+  // currently only adds temporary testing actor
+  const handleAddActor = () => {
     let tempActor = {
       initiative: Math.floor(Math.random() * 20),
-      // initiative: 8,
       hp: 96,
       ac: 17,
       dc: 14,
-      name: "Temp",
-      type: "companion",
-      notes: "Testing",
-      id: size,
+      name: 'Temp',
+      type: 'companion',
+      notes: 'Testing',
+      id: sortedScenario.length,
     };
 
-    setSize(size + 1);
-
-    setCurrentActors(
-      [...currentActors, tempActor]
+    setSortedScenario(
+      [...sortedScenario, tempActor]
         .sort((a, b) => {
           if (a.initiative === b.initiative) {
             return b.name - a.name;
@@ -73,19 +141,41 @@ export default function Combat() {
         })
     );
 
-    if (tempActor.initiative >= currentActors[turnIndex].initiative) {
+    if (tempActor.initiative >= sortedScenario[turnIndex].initiative) {
       setTurnIndex(turnIndex + 1);
     }
   };
 
+  useEffect(() => {
+    if (sortedScenario.length > 0 && !loading) {
+      setSortedScenario(sortedScenario);
+    }
+  }, [loading, sortedScenario]);
+
+  // Updates current turn's name & id when turn index is updated
+  useEffect(() => {
+    const setActor = () => {
+      setCurrTurnName(sortedScenario[turnIndex].name);
+      setCurrTurnId(sortedScenario[turnIndex].id);
+    };
+    if (sortedScenario.length > 0 && !loading) {
+      setActor();
+    }
+  }, [turnIndex, loading, sortedScenario]);
+
   return (
     <div className="container">
-      <Grid container justifyContent="center" direction="row" spacing={2} sx={{ height: "80%" }}>
-        <Typography variant="h4">Combat</Typography>
-        <Grid item xs={12}>
-          <DataTable actors={currentActors} turnNum={turnIndex} onCellEdit={handleCellEdit} />
+      <Grid
+        container
+        justifyContent="center"
+        direction="row"
+        spacing={2}
+        className={classes.grid}
+        xs={12}
+      >
+        <Grid item container xs={12} spacing={3}>
+          <CombatView />
         </Grid>
-        <Toolbar roundNum={roundNum} actorTurn={actorName} endTurn={handleTurnEnd} onAddActor={addActor} />
       </Grid>
     </div>
   );
