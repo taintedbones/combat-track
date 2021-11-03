@@ -5,7 +5,8 @@ export default function CombatToolbar({
   currentTurnName,
   roundNum,
   endTurn,
-  onAddActor
+  onAddActor,
+  onDeleteActor,
 }) {
   return (
     <Grid item container xs={12}>
@@ -33,7 +34,7 @@ export default function CombatToolbar({
           </Button>
         </Grid>
         <Grid item xs>
-          <Button variant="contained" fullWidth>
+          <Button variant="contained" fullWidth onClick={onDeleteActor}>
             Delete Actor
           </Button>
         </Grid>

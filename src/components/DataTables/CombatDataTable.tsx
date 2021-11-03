@@ -2,6 +2,7 @@ import {
   DataGrid,
   GridSortModel,
   GridCellEditCommitParams,
+  GridRowParams,
   MuiEvent,
   GridCallbackDetails,
 } from '@mui/x-data-grid';
@@ -11,7 +12,7 @@ import React from 'react';
 import { Grid, Typography } from '@mui/material';
 
 // export default function DataTable({ actors, turnNum, onCellEdit }) {
-export default function CombatDataTable({ actors, styling, turnId}) {
+export default function CombatDataTable({ actors, styling, turnId, onActorSelect }) {
   const [sortModel, setSortModel] = useState<GridSortModel>([
     {
       field: 'initiative',
@@ -42,10 +43,16 @@ export default function CombatDataTable({ actors, styling, turnId}) {
           //     }
           //   });
           // }}
-          getRowClassName={(rowId) => { 
+          getRowClassName={(rowId) => {
             return `rowTheme-selected-${rowId.id === turnId}`;
           }}
-          // onRowClick={}
+          onRowClick={(
+            params: GridRowParams,
+            event: MuiEvent<React.SyntheticEvent>,
+            details: GridCallbackDetails
+          ) => {
+            onActorSelect(params.row)
+          }}
         />
       </Grid>
     </React.Fragment>

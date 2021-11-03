@@ -49,6 +49,8 @@ export default function Combat() {
   const [currTurnId, setCurrTurnId] = useState<number>();
   const [turnIndex, setTurnIndex] = useState(0);
   const [sortedScenario, setSortedScenario] = useState<any[]>([]); // holds array of actors in combat scenario
+  const [selectedActor, setSelectedActor] = useState<any>();
+  const [deletedActors, setDeletedActors] = useState<any[]>([]);
 
   function CombatView() {
     if (combatStarted) {
@@ -58,10 +60,12 @@ export default function Combat() {
             actors={sortedScenario}
             styling={classes.dataGrid}
             turnId={currTurnId}
+            onActorSelect={handleSelectActor}
           />
           <CombatToolbar
             onBackClicked={handleBackClicked}
             onAddActor={handleAddActor}
+            onDeleteActor={handleDeleteActor}
             currentTurnName={currTurnName}
             roundNum={roundNum}
             endTurn={handleTurnEnd}
@@ -109,8 +113,16 @@ export default function Combat() {
     }
   };
 
-  const handleDeleteActor = () => {
+  const handleSelectActor = (actor) => {
+    setSelectedActor(actor);
+    console.log("Selected Actor: ", selectedActor);
+  };
 
+  const handleDeleteActor = () => {
+    console.log("Delected Actors: ");
+    // Adds selectedActor to deletedActors 
+    // get item
+    // setDeletedActors(deletedActors.push(selectedActor));
   };
 
   // currently only adds temporary testing actor
