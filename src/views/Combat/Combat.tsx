@@ -58,7 +58,6 @@ export default function Combat() {
             actors={sortedScenario}
             styling={classes.dataGrid}
             turnId={currTurnId}
-            
           />
           <CombatToolbar
             onBackClicked={handleBackClicked}

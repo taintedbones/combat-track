@@ -31,20 +31,21 @@ export default function CombatDataTable({ actors, styling, turnId}) {
           columns={columns}
           sortModel={sortModel}
           hideFooterPagination
-          onCellEditCommit={(
-            params: GridCellEditCommitParams,
-            event: MuiEvent<React.SyntheticEvent>,
-            details: GridCallbackDetails
-          ) => {
-            actors.forEach((value, index) => {
-              if (value.id === params.id) {
-                value.initiative = params.value;
-              }
-            });
-          }}
+          // onCellEditCommit={(
+          //   params: GridCellEditCommitParams,
+          //   event: MuiEvent<React.SyntheticEvent>,
+          //   details: GridCallbackDetails
+          // ) => {
+          //   actors.forEach((value, index) => {
+          //     if (value.id === params.id) {
+          //       value.initiative = params.value;
+          //     }
+          //   });
+          // }}
           getRowClassName={(rowId) => { 
             return `rowTheme-selected-${rowId.id === turnId}`;
           }}
+          // onRowClick={}
         />
       </Grid>
     </React.Fragment>
