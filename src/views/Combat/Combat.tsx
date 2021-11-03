@@ -1,4 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useLayoutEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import { useScenarios } from '../../hooks/useDatabase';
 import { Grid, TextField } from '@mui/material';
 import { makeStyles } from '@mui/styles';
@@ -52,45 +58,11 @@ export default function Combat() {
   const [selectedActor, setSelectedActor] = useState<any>();
   const [deletedActors, setDeletedActors] = useState<any[]>([]);
 
-  function CombatView() {
-    if (combatStarted) {
-      return (
-        <React.Fragment>
-          <CombatDataTable
-            actors={sortedScenario}
-            styling={classes.dataGrid}
-            turnId={currTurnId}
-            onActorSelect={handleSelectActor}
-          />
-          <CombatToolbar
-            onBackClicked={handleBackClicked}
-            onAddActor={handleAddActor}
-            onDeleteActor={handleDeleteActor}
-            currentTurnName={currTurnName}
-            roundNum={roundNum}
-            endTurn={handleTurnEnd}
-          />
-        </React.Fragment>
-      );
-    } else {
-      return (
-        <React.Fragment>
-          <CombatSetupDataTable
-            actors={scenarios}
-            loading={loading}
-            styling={classes.dataGrid}
-          />
-          <CombatSetupToolbar onStartCombat={handleStartCombat} />
-        </React.Fragment>
-      );
-    }
-  }
-
   const handleStartCombat = () => {
     // check if all initiatives have value > 0 before changing state
     // display error modal if necessary
     setCombatStarted(true);
-
+    setTurnIndex(0);
     // get  sorted copy of table by initiative
     setSortedScenario(() => {
       return scenarios.slice().sort((a, b) => b.initiative - a.initiative);
@@ -113,14 +85,26 @@ export default function Combat() {
     }
   };
 
+  // const handleTurnEnd = useCallback(
+  //   () => {
+  //     if (turnIndex + 1 === sortedScenario.length) {
+  //           setTurnIndex(0);
+  //           setRoundNum(roundNum + 1);
+  //         } else {
+  //           setTurnIndex(turnIndex + 1);
+  //         }
+  //   },
+  //   [roundNum, turnIndex, sortedScenario],
+  // )
+
   const handleSelectActor = (actor) => {
     setSelectedActor(actor);
-    console.log("Selected Actor: ", selectedActor);
+    console.log('Selected Actor: ', selectedActor);
   };
 
   const handleDeleteActor = () => {
-    console.log("Delected Actors: ");
-    // Adds selectedActor to deletedActors 
+    console.log('Delected Actors: ');
+    // Adds selectedActor to deletedActors
     // get item
     // setDeletedActors(deletedActors.push(selectedActor));
   };
@@ -157,14 +141,14 @@ export default function Combat() {
     }
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (sortedScenario.length > 0 && !loading) {
       setSortedScenario(sortedScenario);
     }
   }, [loading, sortedScenario]);
 
   // Updates current turn's name & id when turn index is updated
-  useEffect(() => {
+  useLayoutEffect(() => {
     const setActor = () => {
       setCurrTurnName(sortedScenario[turnIndex].name);
       setCurrTurnId(sortedScenario[turnIndex].id);
@@ -172,7 +156,37 @@ export default function Combat() {
     if (sortedScenario.length > 0 && !loading) {
       setActor();
     }
-  }, [turnIndex, loading, sortedScenario]);
+  }, [turnIndex, loading]);
+
+  const renderCombat = (
+    <React.Fragment>
+      <CombatDataTable
+        actors={sortedScenario}
+        styling={classes.dataGrid}
+        turnId={currTurnId}
+        onActorSelect={handleSelectActor}
+      />
+      <CombatToolbar
+        onBackClicked={handleBackClicked}
+        onAddActor={handleAddActor}
+        onDeleteActor={handleDeleteActor}
+        currentTurnName={currTurnName}
+        roundNum={roundNum}
+        endTurn={handleTurnEnd}
+      />
+    </React.Fragment>
+  );
+
+  const renderSetup = (
+    <React.Fragment>
+      <CombatSetupDataTable
+        actors={scenarios}
+        loading={loading}
+        styling={classes.dataGrid}
+      />
+      <CombatSetupToolbar onStartCombat={handleStartCombat} />
+    </React.Fragment>
+  );
 
   return (
     <div className="container">
@@ -185,7 +199,7 @@ export default function Combat() {
         xs={12}
       >
         <Grid item container xs={12} spacing={3}>
-          <CombatView />
+          {combatStarted ? renderCombat : renderSetup}
         </Grid>
       </Grid>
     </div>
