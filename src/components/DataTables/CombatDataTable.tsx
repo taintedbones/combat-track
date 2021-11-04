@@ -5,6 +5,7 @@ import {
   MuiEvent,
   GridCallbackDetails,
 } from '@mui/x-data-grid';
+import { GiAxeSword } from "react-icons/gi";
 import { columns } from './CombatColumns';
 import { useState } from 'react';
 import React from 'react';
@@ -27,7 +28,7 @@ export default function CombatDataTable({
   return (
     <React.Fragment>
       <Grid item xs={12}>
-        <Typography variant="h4">Combat</Typography>
+        <Typography variant="h4"><GiAxeSword /> Combat <GiAxeSword /></Typography>
       </Grid>
       <Grid item xs={12}>
         <DataGrid

@@ -5,15 +5,16 @@ import {
   MuiEvent,
   GridCallbackDetails,
 } from '@mui/x-data-grid';
+import { GiDiceShield } from "react-icons/gi";
 import { columns } from './CombatSetupColumns';
 import React from 'react';
 import '../../styles/App.css';
 
 export default function CombatSetupDataTable({ actors, loading, styling }) {
   return (
-    <Grid item container xs={12}>
+    <Grid item container xs={12} spacing={2}>
       <Grid item xs={12}>
-        <Typography variant="h4">Combat Setup</Typography>
+        <Typography variant="h4"><GiDiceShield /> Combat Setup <GiDiceShield /></Typography>
       </Grid>
       <Grid item xs={12}>
         <DataGrid
