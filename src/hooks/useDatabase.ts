@@ -104,48 +104,6 @@ export const useScenarios = () => {
     fetchScenario();
   }, []);
 
-  // useEffect(() => {
-  //   const fetchScenario = async () => {
-  //     setLoading(true);
-  //     try {
-  //       // create specific scenario reference
-  //       const docRef = doc(database, 'scenarios', scenarioName);
-  //       // get document from reference
-  //       const scenarioSnapshot = await getDoc(docRef);
-  //       // convert actors in array to actor objects
-  //       const actorRefsList = scenarioSnapshot.get('actors');
-  //       // console.log('actorRefs: ', actorRefsList);
-  //       // console.log('path 1: ', actorRefsList[0].path);
-
-  //       let actorList: any[] = [];
-
-  //       for (let i = 0; i < actorRefsList.length; i++) {
-  //         const temp = await getActorFromRef(actorRefsList[i].path);
-  //         if(temp !== undefined) {
-  //           Object.defineProperty(temp, "id", { value: i });
-  //           // console.log("temp: ", temp["id"]);
-  //           actorList.push(temp);
-  //         }
-  //       }
-
-  //       // console.log('actorList: ', actorList);
-  //       let scenarioNamesList = await getListOfScenarios();
-  //       // console.log(scenarioNamesList);
-
-  //       setLoading(false);
-  //       setScenarios(actorList);
-  //       setScenarioNames(scenarioNamesList);
-
-  //       return actorList;
-  //     } catch (error) {
-  //       console.error(error);
-  //       setLoading(false);
-  //       setError(true);
-  //     }
-  //   };
-  //   fetchScenario();
-  //   }, [scenarioName]);
-
   return { error, loading, scenarios };
 };
 

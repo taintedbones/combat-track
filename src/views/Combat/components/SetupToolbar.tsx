@@ -1,5 +1,4 @@
 import { Button, Grid, Select, MenuItem, InputLabel } from '@mui/material';
-import ScenarioMenuItem from './ScenarioMenuItem';
 
 export default function CombatSetupToolbar({ onStartCombat }) {
   return (
@@ -14,6 +13,8 @@ export default function CombatSetupToolbar({ onStartCombat }) {
             style={{ width: '100%', color: 'white' }}
           >
             <MenuItem value="skeletons">Skeletons</MenuItem>
+            <MenuItem value="vampires">Vampires</MenuItem>
+            <MenuItem value="ogres">Ogres</MenuItem>
           </Select>
         </Grid>
         <Grid item xs>
