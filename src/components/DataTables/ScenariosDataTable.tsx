@@ -20,9 +20,9 @@ const useStyles = makeStyles({
 export default function DataTable() {
   const classes = useStyles();
   const { error, loading, actors } = useActors();
-  const { scenarios } = useScenarios();
+  // const { scenarios } = useScenarios();
   const { users } = useUsers();
-  console.log("scenarios ", scenarios);
+  // console.log("scenarios ", scenarios);
   console.log("users", users);
 
   return (

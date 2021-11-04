@@ -1,38 +1,55 @@
-import { DataGrid } from "@mui/x-data-grid";
-import { makeStyles } from "@mui/styles";
-import { columns } from "./CombatColumns";
+import {
+  DataGrid,
+  GridSortModel,
+  GridRowParams,
+  MuiEvent,
+  GridCallbackDetails,
+} from '@mui/x-data-grid';
+import { GiAxeSword } from "react-icons/gi";
+import { columns } from './CombatColumns';
+import { useState } from 'react';
+import React from 'react';
+import { Grid, Typography } from '@mui/material';
 
-const useStyles = makeStyles(() => {
-  return {
-    root: {
-      width: "100%",
-      height: "60vh",
-      marginBottom: "5vh",
-      "& .rowTheme-selected-true": {
-        backgroundColor: "#ED6C02",
-      },
+export default function CombatDataTable({
+  actors,
+  styling,
+  turnId,
+  onActorSelect,
+  onCellCommit,
+}) {
+  const [sortModel, setSortModel] = useState<GridSortModel>([
+    {
+      field: 'initiative',
+      sort: 'desc',
     },
-    dataGrid: {
-      color: "white",
-      "& .col-header": {
-        backgroundColor: "purple",
-      },
-    },
-  };
-});
-
-export default function DataTable({ actors, turnNum }) {
-  const classes = useStyles();
+  ]);
 
   return (
-    <div className={classes.root}>
-      <DataGrid
-        rows={actors}
-        columns={columns}
-        hideFooterPagination
-        className={classes.dataGrid}
-        getRowClassName={(rowId) => `rowTheme-selected-${rowId.id === turnNum}`}
-      />
-    </div>
+    <React.Fragment>
+      <Grid item xs={12}>
+        <Typography variant="h4"><GiAxeSword /> Combat <GiAxeSword /></Typography>
+      </Grid>
+      <Grid item xs={12}>
+        <DataGrid
+          className={styling}
+          rows={actors}
+          columns={columns}
+          sortModel={sortModel}
+          hideFooterPagination
+          onCellEditCommit={onCellCommit}
+          getRowClassName={(rowId) => {
+            return `rowTheme-selected-${rowId.id === turnId}`;
+          }}
+          onRowClick={(
+            params: GridRowParams,
+            event: MuiEvent<React.SyntheticEvent>,
+            details: GridCallbackDetails
+          ) => {
+            onActorSelect(params.row);
+          }}
+        />
+      </Grid>
+    </React.Fragment>
   );
 }

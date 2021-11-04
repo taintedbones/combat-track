@@ -1,49 +1,209 @@
-import { useEffect, useState } from "react";
-import { useActors } from "../../hooks/useDatabase";
-import { Grid, Typography } from "@mui/material";
-import Toolbar from "./components/Toolbar";
-import DataTable from "../../components/DataTables/CombatDataTable";
-import "../../styles/App.css";
+import React, { useEffect, useState } from 'react';
+import { useScenarios } from '../../hooks/useDatabase';
+import { Grid, TextField } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import {
+  GridCellEditCommitParams,
+  MuiEvent,
+  GridCallbackDetails,
+} from '@mui/x-data-grid';
+import CombatToolbar from './components/Toolbar';
+import CombatDataTable from '../../components/DataTables/CombatDataTable';
+import CombatSetupDataTable from '../../components/DataTables/CombatSetupDataTable';
+import CombatSetupToolbar from './components/SetupToolbar';
+import '../../styles/App.css';
+
+const useStyles = makeStyles(() => {
+  return {
+    root: {
+      paddingTop: '100px',
+    },
+    dataGrid: {
+      color: 'white',
+      width: '100%',
+      height: '60vh',
+      '& .col-header': {
+        backgroundColor: 'purple',
+      },
+      '& .rowTheme-selected-true': {
+        backgroundColor: '#ED6C02',
+      },
+    },
+    grid: {
+      height: '80%',
+    },
+  };
+});
+
+// spinner used to modify values on combat table
+// TODO: update spinners on change
+// export function renderSpinner(params) {
+//   return (
+//     <TextField
+//       type="number"
+//       defaultValue={params.value}
+//       inputProps={{ min: 0, max: 99, style: { color: 'white', fontSize: 14 } }}
+      
+//     />
+//   );
+// }
 
 export default function Combat() {
+  const classes = useStyles();
+  const { loading, scenarios } = useScenarios();
+  const [sortedScenario, setSortedScenario] = useState<any[]>([]);
+  const [combatStarted, setCombatStarted] = useState(false);
   const [roundNum, setRoundNum] = useState(1);
-  const [turnNum, setTurnNum] = useState(0);
-  const [actorName, setActorName] = useState("");
-  const { loading, actors } = useActors();
-  const size = actors.length;
+  const [currTurnName, setCurrTurnName] = useState<string>();
+  const [currTurnId, setCurrTurnId] = useState<number>();
+  const [turnIndex, setTurnIndex] = useState(0);
+  const [selectedActor, setSelectedActor] = useState<any>();
+  const [nextAvailId, setNextAvailId] = useState<number>(0);
 
-  useEffect(() => {
-    const setActor = () => {
-      const actor = actors.filter((obj) => {
-        return obj.id === turnNum;
-      })[0];
-      setActorName(actor.name);
-    };
-    if (!!actors.length && !loading) {
-      setActor();
+  const handleStartCombat = () => {
+    const temp = scenarios.slice().sort((a, b) => b.initiative - a.initiative);
+
+    setSortedScenario(temp);
+    setCurrTurnId(temp[0].id);
+    setCurrTurnName(temp[0].name);
+    setNextAvailId(temp.length);
+    setCombatStarted(true);
+    setTurnIndex(0);
+  };
+
+  const handleBackClicked = () => {
+    // Error handling: display prompt asking if user is sure at some point
+    setCombatStarted(false);
+    setRoundNum(0);
+  };
+
+  const handleCombatCellCommit = (
+    params: GridCellEditCommitParams,
+    event: MuiEvent<React.SyntheticEvent>,
+    details: GridCallbackDetails
+  ) => {
+    let temp = sortedScenario.slice();
+    let index = temp.findIndex((actor) => actor.id === params.id);
+    temp[index][params.field] = params.value;
+
+    // resort table by initiative if that field is altered
+    if (params.field === 'initiative') {
+      temp = temp.slice().sort((a, b) => b.initiative - a.initiative);
     }
-  }, [loading, actors, turnNum]);
 
+    setSortedScenario(temp);
+    setTurnIndex(0);
+    setCurrTurnName(sortedScenario[0].name);
+    setCurrTurnId(sortedScenario[0].id);
+  };
+
+  // manages turn index & round number at end of each actor turn
   const handleTurnEnd = () => {
-    if (turnNum + 1 === size) {
-      setTurnNum(0);
+    if (turnIndex + 1 === sortedScenario.length) {
+      setTurnIndex(0);
       setRoundNum(roundNum + 1);
-      console.log("ended turn");
-      console.log("new round");
     } else {
-      setTurnNum(turnNum + 1);
-      console.log("ended turn");
+      setTurnIndex(turnIndex + 1);
     }
   };
 
+  const handleSelectActor = (actor) => {
+    setSelectedActor(actor);
+  };
+
+  const handleDeleteActor = () => {
+    // Error handling: maybe add a confirmation dialog
+    if (selectedActor !== undefined) {
+      let temp = sortedScenario.slice();
+      let index = temp.findIndex((actor) => actor.id === selectedActor.id);
+
+      temp.splice(index, 1);
+      setSortedScenario(temp);
+    }
+  };
+
+  // Adds blank row to table
+  const handleAddActor = () => {
+    // creates blank actor row to be added to table
+    let tempActor = {
+      initiative: 0,
+      hp: 0,
+      ac: 0,
+      dc: 0,
+      name: '',
+      type: '',
+      notes: '',
+      id: nextAvailId,
+    };
+
+    setNextAvailId(nextAvailId + 1); // ensures all ids are unique
+
+    let temp = sortedScenario.slice();
+    temp.push(tempActor);
+    setSortedScenario(temp);
+  };
+
+  useEffect(() => {
+    if (sortedScenario.length > 0 && !loading) {
+      setSortedScenario(sortedScenario);
+    }
+  }, [loading, sortedScenario]);
+
+  // Updates current turn's name & id when turn index is updated
+  useEffect(() => {
+    const setActor = () => {
+      setCurrTurnName(sortedScenario[turnIndex].name);
+      setCurrTurnId(sortedScenario[turnIndex].id);
+    };
+    if (sortedScenario.length > 0 && !loading) {
+      setActor();
+    }
+  }, [turnIndex, loading]);
+
+  const renderCombat = (
+    <React.Fragment>
+      <CombatDataTable
+        actors={sortedScenario}
+        styling={classes.dataGrid}
+        turnId={currTurnId}
+        onActorSelect={handleSelectActor}
+        onCellCommit={handleCombatCellCommit}
+      />
+      <CombatToolbar
+        onBackClicked={handleBackClicked}
+        onAddActor={handleAddActor}
+        onDeleteActor={handleDeleteActor}
+        currentTurnName={currTurnName}
+        roundNum={roundNum}
+        endTurn={handleTurnEnd}
+      />
+    </React.Fragment>
+  );
+
+  const renderSetup = (
+    <React.Fragment>
+      <CombatSetupDataTable
+        actors={scenarios}
+        loading={loading}
+        styling={classes.dataGrid}
+      />
+      <CombatSetupToolbar onStartCombat={handleStartCombat} />
+    </React.Fragment>
+  );
+
   return (
     <div className="container">
-      <Grid container justifyContent="center" direction="row" spacing={2} sx={{ height: "80%" }}>
-        <Typography variant="h4">Combat</Typography>
-        <Grid item xs={12}>
-          <DataTable actors={actors} turnNum={turnNum} />
+      <Grid
+        container
+        justifyContent="center"
+        direction="row"
+        spacing={2}
+        className={classes.grid}
+        xs={12}
+      >
+        <Grid item container xs={12} spacing={3}>
+          {combatStarted ? renderCombat : renderSetup}
         </Grid>
-        <Toolbar roundNum={roundNum} actorTurn={actorName} endTurn={handleTurnEnd} />
       </Grid>
     </div>
   );

@@ -1,4 +1,5 @@
 import { GridColDef } from "@mui/x-data-grid";
+// import { renderSpinner } from "../../views/Combat/Combat";
 
 export const columns: GridColDef[] = [
   {
@@ -7,6 +8,7 @@ export const columns: GridColDef[] = [
     flex: 1,
     headerClassName: "col-header",
     editable: true,
+    sortable: false,
   },
   {
     field: "initiative",
@@ -14,6 +16,8 @@ export const columns: GridColDef[] = [
     flex: 1,
     headerClassName: "col-header",
     editable: true,
+    sortable: false,
+    type: "number",
   },
   {
     field: "hp",
@@ -21,6 +25,9 @@ export const columns: GridColDef[] = [
     flex: 1,
     headerClassName: "col-header",
     editable: true,
+    sortable: false,
+    type: "number",
+    // renderCell: renderSpinner,
   },
   {
     field: "ac",
@@ -28,6 +35,9 @@ export const columns: GridColDef[] = [
     flex: 1,
     headerClassName: "col-header",
     editable: true,
+    sortable: false,
+    // renderCell: renderSpinner,
+    type: "number",
   },
   {
     field: "dc",
@@ -35,6 +45,9 @@ export const columns: GridColDef[] = [
     flex: 1,
     headerClassName: "col-header",
     editable: true,
+    sortable: false,
+    // renderCell: renderSpinner,
+    type: "number",
   },
   {
     field: "type",
@@ -42,12 +55,14 @@ export const columns: GridColDef[] = [
     flex: 1,
     headerClassName: "col-header",
     editable: true,
+    sortable: false,
   },
   {
     field: "notes",
     headerName: "Notes",
-    flex: 1,
+    flex: 3,
     headerClassName: "col-header",
     editable: true,
+    sortable: false,
   },
 ];
