@@ -61,15 +61,14 @@ export default function Combat() {
   const [nextAvailId, setNextAvailId] = useState<number>(0);
 
   const handleStartCombat = () => {
+    const temp = scenarios.slice().sort((a, b) => b.initiative - a.initiative);
+
+    setSortedScenario(temp);
+    setCurrTurnId(temp[0].id);
+    setCurrTurnName(temp[0].name);
+    setNextAvailId(temp.length);
     setCombatStarted(true);
     setTurnIndex(0);
-    setSortedScenario(() => {
-      return scenarios.slice().sort((a, b) => b.initiative - a.initiative);
-    });
-
-    setNextAvailId(scenarios.length);
-    setCurrTurnId(sortedScenario[0].id);
-    setCurrTurnName(sortedScenario[0].name);
   };
 
   const handleBackClicked = () => {
