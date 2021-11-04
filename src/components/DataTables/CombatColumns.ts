@@ -15,7 +15,7 @@ export const columns: GridColDef[] = [
     headerName: "Initiative",
     flex: 1,
     headerClassName: "col-header",
-    editable: false,
+    editable: true,
     sortable: false,
     type: "number",
   },
@@ -54,7 +54,7 @@ export const columns: GridColDef[] = [
     headerName: "type",
     flex: 1,
     headerClassName: "col-header",
-    editable: false,
+    editable: true,
     sortable: false,
   },
   {
@@ -62,7 +62,7 @@ export const columns: GridColDef[] = [
     headerName: "Notes",
     flex: 3,
     headerClassName: "col-header",
-    editable: false,
+    editable: true,
     sortable: false,
   },
 ];
