@@ -1,18 +1,18 @@
-import React, {
-  useEffect,
-  useState,
-  useLayoutEffect,
-  useCallback,
-  useMemo,
-} from 'react';
+import React, { useEffect, useState } from 'react';
 import { useScenarios } from '../../hooks/useDatabase';
-import { Grid, TextField } from '@mui/material';
+import { Grid, TextField, Alert } from '@mui/material';
 import { makeStyles } from '@mui/styles';
+import {
+  GridCellEditCommitParams,
+  MuiEvent,
+  GridCallbackDetails,
+} from '@mui/x-data-grid';
 import CombatToolbar from './components/Toolbar';
 import CombatDataTable from '../../components/DataTables/CombatDataTable';
 import CombatSetupDataTable from '../../components/DataTables/CombatSetupDataTable';
 import CombatSetupToolbar from './components/SetupToolbar';
 import '../../styles/App.css';
+import { Api } from '@mui/icons-material';
 
 const useStyles = makeStyles(() => {
   return {
@@ -56,7 +56,7 @@ export default function Combat() {
   const [turnIndex, setTurnIndex] = useState(0);
   const [sortedScenario, setSortedScenario] = useState<any[]>([]); // holds array of actors in combat scenario
   const [selectedActor, setSelectedActor] = useState<any>();
-  const [deletedActors, setDeletedActors] = useState<any[]>([]);
+  const [nextAvailId, setNextAvailId] = useState<number>(0);
 
   const handleStartCombat = () => {
     // check if all initiatives have value > 0 before changing state
@@ -67,12 +67,36 @@ export default function Combat() {
     setSortedScenario(() => {
       return scenarios.slice().sort((a, b) => b.initiative - a.initiative);
     });
+
+    setNextAvailId(scenarios.length);
   };
 
   const handleBackClicked = () => {
     // display prompt asking if user is sure at some point
     setCombatStarted(false);
     setRoundNum(0);
+  };
+
+  const handleCombatCellCommit = (
+    params: GridCellEditCommitParams,
+    event: MuiEvent<React.SyntheticEvent>,
+    details: GridCallbackDetails
+  ) => {
+    let temp = sortedScenario.slice();
+    let index = temp.findIndex((actor) => actor.id === params.id);
+    temp[index][params.field] = params.value;
+    
+    if (params.field === 'initiative') {
+      temp = temp.slice().sort((a, b) => b.initiative - a.initiative);
+    }
+    
+    setSortedScenario(temp);
+
+    setTurnIndex(0);
+    setCurrTurnName(sortedScenario[0].name);
+    setCurrTurnId(sortedScenario[0].id);
+
+    console.log(sortedScenario);
   };
 
   // manages turn index & round number at end of each actor turn
@@ -85,70 +109,59 @@ export default function Combat() {
     }
   };
 
-  // const handleTurnEnd = useCallback(
-  //   () => {
-  //     if (turnIndex + 1 === sortedScenario.length) {
-  //           setTurnIndex(0);
-  //           setRoundNum(roundNum + 1);
-  //         } else {
-  //           setTurnIndex(turnIndex + 1);
-  //         }
-  //   },
-  //   [roundNum, turnIndex, sortedScenario],
-  // )
-
   const handleSelectActor = (actor) => {
     setSelectedActor(actor);
     console.log('Selected Actor: ', selectedActor);
   };
 
   const handleDeleteActor = () => {
-    console.log('Delected Actors: ');
-    // Adds selectedActor to deletedActors
-    // get item
-    // setDeletedActors(deletedActors.push(selectedActor));
-  };
+    if (selectedActor !== undefined) {
+      let temp = sortedScenario.slice();
+      let index = temp.findIndex((actor) => actor.id === selectedActor.id);
 
-  // currently only adds temporary testing actor
-  const handleAddActor = () => {
-    let tempActor = {
-      initiative: Math.floor(Math.random() * 20),
-      hp: 96,
-      ac: 17,
-      dc: 14,
-      name: 'Temp',
-      type: 'companion',
-      notes: 'Testing',
-      id: sortedScenario.length,
-    };
-
-    setSortedScenario(
-      [...sortedScenario, tempActor]
-        .sort((a, b) => {
-          if (a.initiative === b.initiative) {
-            return b.name - a.name;
-          } else {
-            return b.initiative - a.initiative;
-          }
-        })
-        .map((actor, index) => {
-          return { ...actor, index: index };
-        })
-    );
-
-    if (tempActor.initiative >= sortedScenario[turnIndex].initiative) {
-      setTurnIndex(turnIndex + 1);
+      temp.splice(index, 1);
+      setSortedScenario(temp);
     }
   };
 
-  useLayoutEffect(() => {
+  // Adds blank row to table
+  const handleAddActor = () => {
+    // creates blank actor row to be added to table
+    let tempActor = {
+      initiative: 0,
+      hp: 0,
+      ac: 0,
+      dc: 0,
+      name: '',
+      type: '',
+      notes: '',
+      id: nextAvailId,
+    };
+
+    setNextAvailId(nextAvailId + 1); // ensures all ids are unique
+
+    let temp = sortedScenario.slice();
+    temp.push(tempActor);
+    setSortedScenario(temp);
+
+    // if (
+    //   sortedScenario.length > 1 &&
+    //   tempActor.initiative >= sortedScenario[turnIndex].initiative
+    // ) {
+    //   setTurnIndex(turnIndex + 1);
+    // } else {
+    //   setTurnIndex(0);
+    // }
+  };
+
+  useEffect(() => {
     if (sortedScenario.length > 0 && !loading) {
       setSortedScenario(sortedScenario);
     }
   }, [loading, sortedScenario]);
 
   // Updates current turn's name & id when turn index is updated
-  useLayoutEffect(() => {
+  useEffect(() => {
     const setActor = () => {
       setCurrTurnName(sortedScenario[turnIndex].name);
       setCurrTurnId(sortedScenario[turnIndex].id);
@@ -165,6 +178,7 @@ export default function Combat() {
         styling={classes.dataGrid}
         turnId={currTurnId}
         onActorSelect={handleSelectActor}
+        onCellCommit={handleCombatCellCommit}
       />
       <CombatToolbar
         onBackClicked={handleBackClicked}

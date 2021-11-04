@@ -12,7 +12,13 @@ import React from 'react';
 import { Grid, Typography } from '@mui/material';
 
 // export default function DataTable({ actors, turnNum, onCellEdit }) {
-export default function CombatDataTable({ actors, styling, turnId, onActorSelect }) {
+export default function CombatDataTable({
+  actors,
+  styling,
+  turnId,
+  onActorSelect,
+  onCellCommit
+}) {
   const [sortModel, setSortModel] = useState<GridSortModel>([
     {
       field: 'initiative',
@@ -32,17 +38,7 @@ export default function CombatDataTable({ actors, styling, turnId, onActorSelect
           columns={columns}
           sortModel={sortModel}
           hideFooterPagination
-          // onCellEditCommit={(
-          //   params: GridCellEditCommitParams,
-          //   event: MuiEvent<React.SyntheticEvent>,
-          //   details: GridCallbackDetails
-          // ) => {
-          //   actors.forEach((value, index) => {
-          //     if (value.id === params.id) {
-          //       value.initiative = params.value;
-          //     }
-          //   });
-          // }}
+          onCellEditCommit={onCellCommit}
           getRowClassName={(rowId) => {
             return `rowTheme-selected-${rowId.id === turnId}`;
           }}
@@ -51,7 +47,7 @@ export default function CombatDataTable({ actors, styling, turnId, onActorSelect
             event: MuiEvent<React.SyntheticEvent>,
             details: GridCallbackDetails
           ) => {
-            onActorSelect(params.row)
+            onActorSelect(params.row);
           }}
         />
       </Grid>
