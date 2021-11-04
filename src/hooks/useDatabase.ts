@@ -57,11 +57,11 @@ async function getListOfScenarios() {
 }
 
 // get specific scenario (maybe turn this vv into specific)
-export const useScenarios = () => {
+export const useScenario = () => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [scenarios, setScenarios] = useState<any[]>([]);
-  // const [scenarioNames, setScenarioNames] = useState<string[]>([]);
+  const [scenario, setScenario] = useState<any[]>([]);
+  const [scenarioName, setScenarioName] = useState<string>('skeletons');
 
   async function getActorFromRef(refPath) {
     const docName = refPath.split('/')[1];
@@ -70,11 +70,15 @@ export const useScenarios = () => {
     return snapshot.data();
   }
 
+  const updateScenario = (scenarioName) => {
+    setScenarioName(scenarioName)
+  }
+
   useEffect(() => {
     const fetchScenario = async () => {
       setLoading(true);
       try {
-        const docRef = doc(database, 'scenarios', 'skeletons');
+        const docRef = doc(database, 'scenarios', scenarioName);
         const scenarioSnapshot = await getDoc(docRef);
         const actorRefsList = scenarioSnapshot.get('actors');
 
@@ -92,19 +96,17 @@ export const useScenarios = () => {
           })
         );
 
-        setScenarios(actorList);
+        setScenario(actorList);
         setLoading(false);
-
-        return actorList;
       } catch (error) {
         console.error(error);
         setLoading(false);
       }
     };
     fetchScenario();
-  }, []);
+  }, [scenarioName]);
 
-  return { error, loading, scenarios };
+  return { error, loading, scenario, updateScenario };
 };
 
 export const useUsers = () => {

@@ -1,6 +1,6 @@
 import { Button, Grid, Select, MenuItem, InputLabel } from '@mui/material';
 
-export default function CombatSetupToolbar({ onStartCombat }) {
+export default function CombatSetupToolbar({ onStartCombat, onScenarioChange, scenarioName }) {
   return (
     <Grid item container xs={12}>
       <Grid item container spacing={4}>
@@ -9,12 +9,13 @@ export default function CombatSetupToolbar({ onStartCombat }) {
           <Select
             labelId="select-scenario-label"
             label="Scenario"
-            defaultValue="skeletons"
+            value={scenarioName}
+            onChange={onScenarioChange}
             style={{ width: '100%', color: 'white' }}
           >
             <MenuItem value="skeletons">Skeletons</MenuItem>
             <MenuItem value="vampires">Vampires</MenuItem>
-            <MenuItem value="ogres">Ogres</MenuItem>
+            <MenuItem value="orcs">Orcs</MenuItem>
           </Select>
         </Grid>
         <Grid item xs>

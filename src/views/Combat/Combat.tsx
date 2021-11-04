@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useScenarios } from '../../hooks/useDatabase';
-import { Grid, TextField } from '@mui/material';
+import { useScenario } from '../../hooks/useDatabase';
+import { Grid, TextField, SelectChangeEvent } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import {
   GridCellEditCommitParams,
@@ -50,7 +50,8 @@ const useStyles = makeStyles(() => {
 
 export default function Combat() {
   const classes = useStyles();
-  const { loading, scenarios } = useScenarios();
+  const { loading, scenario, updateScenario } = useScenario();
+  const [scenarioName, setScenarioName] = useState<string>('skeletons');
   const [sortedScenario, setSortedScenario] = useState<any[]>([]);
   const [combatStarted, setCombatStarted] = useState(false);
   const [roundNum, setRoundNum] = useState(1);
@@ -61,7 +62,7 @@ export default function Combat() {
   const [nextAvailId, setNextAvailId] = useState<number>(0);
 
   const handleStartCombat = () => {
-    const temp = scenarios.slice().sort((a, b) => b.initiative - a.initiative);
+    const temp = scenario.slice().sort((a, b) => b.initiative - a.initiative);
 
     setSortedScenario(temp);
     setCurrTurnId(temp[0].id);
@@ -143,6 +144,11 @@ export default function Combat() {
     setSortedScenario(temp);
   };
 
+  const handleScenarioChange = (event: SelectChangeEvent<any>, child?: object) => {
+     updateScenario(event.target.value);
+     setScenarioName(event.target.value);
+  };
+
   useEffect(() => {
     if (sortedScenario.length > 0 && !loading) {
       setSortedScenario(sortedScenario);
@@ -183,11 +189,11 @@ export default function Combat() {
   const renderSetup = (
     <React.Fragment>
       <CombatSetupDataTable
-        actors={scenarios}
+        actors={scenario}
         loading={loading}
         styling={classes.dataGrid}
       />
-      <CombatSetupToolbar onStartCombat={handleStartCombat} />
+      <CombatSetupToolbar onStartCombat={handleStartCombat} onScenarioChange={handleScenarioChange} scenarioName={scenarioName} />
     </React.Fragment>
   );
 
