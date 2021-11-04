@@ -1,5 +1,5 @@
 import { GridColDef } from "@mui/x-data-grid";
-import { renderSpinner } from "../../views/Combat/Combat";
+// import { renderSpinner } from "../../views/Combat/Combat";
 
 export const columns: GridColDef[] = [
   {
@@ -24,19 +24,19 @@ export const columns: GridColDef[] = [
     headerName: "HP",
     flex: 1,
     headerClassName: "col-header",
-    editable: false,
+    editable: true,
     sortable: false,
     type: "number",
-    renderCell: renderSpinner,
+    // renderCell: renderSpinner,
   },
   {
     field: "ac",
     headerName: "AC",
     flex: 1,
     headerClassName: "col-header",
-    editable: false,
+    editable: true,
     sortable: false,
-    renderCell: renderSpinner,
+    // renderCell: renderSpinner,
     type: "number",
   },
   {
@@ -44,9 +44,9 @@ export const columns: GridColDef[] = [
     headerName: "DC",
     flex: 1,
     headerClassName: "col-header",
-    editable: false,
+    editable: true,
     sortable: false,
-    renderCell: renderSpinner,
+    // renderCell: renderSpinner,
     type: "number",
   },
   {

@@ -1,7 +1,6 @@
 import {
   DataGrid,
   GridSortModel,
-  GridCellEditCommitParams,
   GridRowParams,
   MuiEvent,
   GridCallbackDetails,
@@ -11,13 +10,12 @@ import { useState } from 'react';
 import React from 'react';
 import { Grid, Typography } from '@mui/material';
 
-// export default function DataTable({ actors, turnNum, onCellEdit }) {
 export default function CombatDataTable({
   actors,
   styling,
   turnId,
   onActorSelect,
-  onCellCommit
+  onCellCommit,
 }) {
   const [sortModel, setSortModel] = useState<GridSortModel>([
     {

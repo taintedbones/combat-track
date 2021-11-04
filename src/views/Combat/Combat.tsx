@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useScenarios } from '../../hooks/useDatabase';
-import { Grid, TextField, Alert } from '@mui/material';
+import { Grid, TextField } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import {
   GridCellEditCommitParams,
@@ -12,7 +12,6 @@ import CombatDataTable from '../../components/DataTables/CombatDataTable';
 import CombatSetupDataTable from '../../components/DataTables/CombatSetupDataTable';
 import CombatSetupToolbar from './components/SetupToolbar';
 import '../../styles/App.css';
-import { Api } from '@mui/icons-material';
 
 const useStyles = makeStyles(() => {
   return {
@@ -36,43 +35,45 @@ const useStyles = makeStyles(() => {
   };
 });
 
-export function renderSpinner(params) {
-  return (
-    <TextField
-      type="number"
-      defaultValue={params.value}
-      inputProps={{ min: 0, max: 99, style: { color: 'white', fontSize: 14 } }}
-    />
-  );
-}
+// spinner used to modify values on combat table
+// TODO: update spinners on change
+// export function renderSpinner(params) {
+//   return (
+//     <TextField
+//       type="number"
+//       defaultValue={params.value}
+//       inputProps={{ min: 0, max: 99, style: { color: 'white', fontSize: 14 } }}
+      
+//     />
+//   );
+// }
 
 export default function Combat() {
   const classes = useStyles();
   const { loading, scenarios } = useScenarios();
+  const [sortedScenario, setSortedScenario] = useState<any[]>([]);
   const [combatStarted, setCombatStarted] = useState(false);
   const [roundNum, setRoundNum] = useState(1);
   const [currTurnName, setCurrTurnName] = useState<string>();
   const [currTurnId, setCurrTurnId] = useState<number>();
   const [turnIndex, setTurnIndex] = useState(0);
-  const [sortedScenario, setSortedScenario] = useState<any[]>([]); // holds array of actors in combat scenario
   const [selectedActor, setSelectedActor] = useState<any>();
   const [nextAvailId, setNextAvailId] = useState<number>(0);
 
   const handleStartCombat = () => {
-    // check if all initiatives have value > 0 before changing state
-    // display error modal if necessary
     setCombatStarted(true);
     setTurnIndex(0);
-    // get  sorted copy of table by initiative
     setSortedScenario(() => {
       return scenarios.slice().sort((a, b) => b.initiative - a.initiative);
     });
 
     setNextAvailId(scenarios.length);
+    setCurrTurnId(sortedScenario[0].id);
+    setCurrTurnName(sortedScenario[0].name);
   };
 
   const handleBackClicked = () => {
-    // display prompt asking if user is sure at some point
+    // Error handling: display prompt asking if user is sure at some point
     setCombatStarted(false);
     setRoundNum(0);
   };
@@ -85,18 +86,16 @@ export default function Combat() {
     let temp = sortedScenario.slice();
     let index = temp.findIndex((actor) => actor.id === params.id);
     temp[index][params.field] = params.value;
-    
+
+    // resort table by initiative if that field is altered
     if (params.field === 'initiative') {
       temp = temp.slice().sort((a, b) => b.initiative - a.initiative);
     }
-    
-    setSortedScenario(temp);
 
+    setSortedScenario(temp);
     setTurnIndex(0);
     setCurrTurnName(sortedScenario[0].name);
     setCurrTurnId(sortedScenario[0].id);
-
-    console.log(sortedScenario);
   };
 
   // manages turn index & round number at end of each actor turn
@@ -111,10 +110,10 @@ export default function Combat() {
 
   const handleSelectActor = (actor) => {
     setSelectedActor(actor);
-    console.log('Selected Actor: ', selectedActor);
   };
 
   const handleDeleteActor = () => {
+    // Error handling: maybe add a confirmation dialog
     if (selectedActor !== undefined) {
       let temp = sortedScenario.slice();
       let index = temp.findIndex((actor) => actor.id === selectedActor.id);
@@ -143,15 +142,6 @@ export default function Combat() {
     let temp = sortedScenario.slice();
     temp.push(tempActor);
     setSortedScenario(temp);
-
-    // if (
-    //   sortedScenario.length > 1 &&
-    //   tempActor.initiative >= sortedScenario[turnIndex].initiative
-    // ) {
-    //   setTurnIndex(turnIndex + 1);
-    // } else {
-    //   setTurnIndex(0);
-    // }
   };
 
   useEffect(() => {
