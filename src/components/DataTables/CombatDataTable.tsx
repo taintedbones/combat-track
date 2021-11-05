@@ -1,11 +1,12 @@
-import { DataGrid, GridSortModel, GridRowParams, MuiEvent, GridCallbackDetails } from "@mui/x-data-grid";
+import { DataGrid, GridSortModel, GridRowParams, MuiEvent, GridCallbackDetails, GridRowId } from "@mui/x-data-grid";
 import { GiAxeSword } from "react-icons/gi";
 import { columns } from "./CombatColumns";
 import { useState } from "react";
 import React from "react";
-import { Grid, Typography } from "@mui/material";
+import { Grid, Typography, ClickAwayListener } from "@mui/material";
 
 export default function CombatDataTable({ actors, styling, turnId, onActorSelect, onCellCommit }) {
+  const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
   const [sortModel, setSortModel] = useState<GridSortModel>([
     {
       field: "initiative",
@@ -21,18 +22,22 @@ export default function CombatDataTable({ actors, styling, turnId, onActorSelect
         </Typography>
       </Grid>
       <Grid item xs={12}>
-        <DataGrid
-          className={styling}
-          rows={actors}
-          columns={columns}
-          sortModel={sortModel}
-          hideFooterPagination
-          onCellEditCommit={onCellCommit}
-          getRowClassName={(rowId) => {
-            return `rowTheme-selected-${rowId.id === turnId}`;
-          }}
-          onRowClick={onActorSelect}
-        />
+        <ClickAwayListener onClickAway={() => setSelectionModel([])}>
+          <DataGrid
+            className={styling}
+            rows={actors}
+            columns={columns}
+            sortModel={sortModel}
+            hideFooterPagination
+            onCellEditCommit={onCellCommit}
+            getRowClassName={(rowId) => {
+              return `rowTheme-selected-${rowId.id === turnId}`;
+            }}
+            onRowClick={onActorSelect}
+            selectionModel={selectionModel}
+            onSelectionModelChange={(selectionModel) => setSelectionModel(selectionModel)}
+          />
+        </ClickAwayListener>
       </Grid>
     </React.Fragment>
   );

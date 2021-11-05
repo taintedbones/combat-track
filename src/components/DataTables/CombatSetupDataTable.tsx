@@ -28,7 +28,8 @@ export default function CombatSetupDataTable({ actors, loading, styling, onActor
           ) => {
             actors.forEach((value, index) => {
               if (value.id === params.id) {
-                value.initiative = params.value;
+                value[params.field] = params.value; // set the value of the associated field (ex. name, initiative, etc)
+                console.log(value[params.field]);
               }
             });
             setIsValid(checkValidity(actors));

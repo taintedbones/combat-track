@@ -39,6 +39,7 @@ export default function Combat() {
   const [backTriggered, setBackTriggered] = useState<boolean>(false);
   const [isValidSetup, setIsValidSetup] = useState<boolean>(false);
   const [isValidCombat, setIsValidCombat] = useState<boolean>(true); // assume true if user proceeds to combat
+  const [changedInit, setChangedInit] = useState(false);
 
   const handleStartCombat = () => {
     const temp = scenario.slice().sort((a, b) => b.initiative - a.initiative);
@@ -70,9 +71,10 @@ export default function Combat() {
     // resort table by initiative if that field is altered
     if (params.field === "initiative") {
       temp = temp.slice().sort((a, b) => b.initiative - a.initiative);
+      setChangedInit(true);
+    } else {
+      setChangedInit(false);
     }
-
-    console.log("commit");
 
     setSortedScenario(temp);
     // setIsValidCombat(checkValidity(temp));
@@ -81,9 +83,12 @@ export default function Combat() {
   useEffect(() => {
     if (sortedScenario.length > 0) {
       setIsValidCombat(checkValidity(sortedScenario));
-      setTurnIndex(0);
-      setCurrTurnName(sortedScenario[0].name);
-      setCurrTurnId(sortedScenario[0].id);
+      if (changedInit) {
+        // if init cell was changed, ignore all other cell changes
+        setTurnIndex(0);
+        setCurrTurnName(sortedScenario[0].name);
+        setCurrTurnId(sortedScenario[0].id);
+      }
     } else {
       setIsValidCombat(false); // there are no actors
     }
@@ -117,6 +122,9 @@ export default function Combat() {
       let index = temp.findIndex((actor) => actor.id === selectedActor.id);
 
       temp.splice(index, 1);
+      if (index < turnIndex) {
+        setTurnIndex(turnIndex - 1);
+      }
       combatStarted ? setSortedScenario(temp) : setScenario(temp);
       if (temp.length > 0) {
         combatStarted ? setIsValidCombat(checkValidity(temp)) : setIsValidSetup(checkValidity(temp));
