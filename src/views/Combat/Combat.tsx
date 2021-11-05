@@ -75,11 +75,15 @@ export default function Combat() {
     console.log("commit");
 
     setSortedScenario(temp);
-    setIsValidCombat(checkValidity(temp));
+    // setIsValidCombat(checkValidity(temp));
+  };
+
+  useEffect(() => {
+    setIsValidCombat(checkValidity(sortedScenario));
     setTurnIndex(0);
     setCurrTurnName(sortedScenario[0].name);
     setCurrTurnId(sortedScenario[0].id);
-  };
+  }, [sortedScenario]);
 
   // manages turn index & round number at end of each actor turn
   const handleTurnEnd = () => {
@@ -110,6 +114,7 @@ export default function Combat() {
 
       temp.splice(index, 1);
       combatStarted ? setSortedScenario(temp) : setScenario(temp);
+      combatStarted ? setIsValidCombat(checkValidity(temp)) : setIsValidSetup(checkValidity(temp));
     }
   };
 
