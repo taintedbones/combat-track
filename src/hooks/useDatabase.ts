@@ -70,7 +70,7 @@ export const useScenario = () => {
     return snapshot.data();
   }
 
-  const updateScenario = (scenarioName) => {
+  const updateScenarioName = (scenarioName) => {
     setScenarioName(scenarioName)
   }
 
@@ -106,7 +106,7 @@ export const useScenario = () => {
     fetchScenario();
   }, [scenarioName]);
 
-  return { error, loading, scenario, updateScenario };
+  return { error, loading, scenario, updateScenarioName, setScenario };
 };
 
 export const useUsers = () => {

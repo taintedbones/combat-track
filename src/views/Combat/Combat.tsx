@@ -4,6 +4,7 @@ import { Grid, TextField, SelectChangeEvent } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import {
   GridCellEditCommitParams,
+  GridRowParams,
   MuiEvent,
   GridCallbackDetails,
 } from '@mui/x-data-grid';
@@ -52,7 +53,7 @@ const useStyles = makeStyles(() => {
 
 export default function Combat() {
   const classes = useStyles();
-  const { loading, scenario, updateScenario } = useScenario();
+  const { loading, scenario, updateScenarioName, setScenario } = useScenario();
   const [scenarioName, setScenarioName] = useState<string>('skeletons');
   const [sortedScenario, setSortedScenario] = useState<any[]>([]);
   const [combatStarted, setCombatStarted] = useState(false);
@@ -74,12 +75,10 @@ export default function Combat() {
     setNextAvailId(temp.length);
     setCombatStarted(true);
     setTurnIndex(0);
+    setSelectedActor(undefined);
   };
 
   const handleBackClicked = () => {
-    // Error handling: display prompt asking if user is sure at some point
-    // setCombatStarted(false);
-    // setRoundNum(0);
     setBackTriggered(true);
   };
 
@@ -113,14 +112,18 @@ export default function Combat() {
     }
   };
 
-  const handleSelectActor = (actor) => {
-    setSelectedActor(actor);
+  const handleSelectActor = (params: GridRowParams,
+    event: MuiEvent<React.SyntheticEvent>,
+    details: GridCallbackDetails) => {
+    setSelectedActor(params.row);
   };
 
+  // removes actor fromt the table
   const handleDeleteActor = () => {
     // Error handling: maybe add a confirmation dialog
     if (selectedActor !== undefined) {
-      let temp = sortedScenario.slice();
+      let temp;
+      combatStarted ? temp = sortedScenario.slice() : temp = scenario.slice();
       let index = temp.findIndex((actor) => actor.id === selectedActor.id);
 
       temp.splice(index, 1);
@@ -128,15 +131,18 @@ export default function Combat() {
     }
   };
 
+  // Changes add state if add button clicked on combat or setup
   const handleAddClicked = () => {
     setAddTriggered(true);
   };
 
-  // Adds blank row to table
+  // Adds actor chosen from dialog or empty row to either table
   const handleAddActor = (actor) => {
-    console.log('Added actor: ', actor);
-    let temp = sortedScenario.slice();
+    let temp;
     let tempActor;
+
+    combatStarted ? temp = sortedScenario.slice() : temp = scenario.slice();
+    console.log(temp);
 
     if (actor === 'custom') {
       // creates blank actor row to be added to table
@@ -165,22 +171,23 @@ export default function Combat() {
 
     temp.push(tempActor);
     setNextAvailId(nextAvailId + 1); // ensures all ids are unique
-    setSortedScenario(temp);
-
-    console.log(sortedScenario);
+    combatStarted ? setSortedScenario(temp) : setScenario(temp);
   };
 
   const handleScenarioChange = (
     event: SelectChangeEvent<any>,
     child?: object
   ) => {
-    updateScenario(event.target.value);
+    updateScenarioName(event.target.value);
     setScenarioName(event.target.value);
   };
 
-  const confirmDialogClose = (value) => {
-    handleAddActor(value);
-    setAddTriggered(false);
+  const handleAlertDialogClose = () => {
+    setBackTriggered(false);
+    setCombatStarted(false);
+    setRoundNum(0);
+    setNextAvailId(scenario.length);
+    setSelectedActor(undefined);
   };
 
   useEffect(() => {
@@ -226,11 +233,14 @@ export default function Combat() {
         actors={scenario}
         loading={loading}
         styling={classes.dataGrid}
+        onActorSelect={handleSelectActor}
       />
       <CombatSetupToolbar
         onStartCombat={handleStartCombat}
         onScenarioChange={handleScenarioChange}
         scenarioName={scenarioName}
+        onAddActor={handleAddClicked}
+        onDeleteActor={handleDeleteActor}
       />
     </React.Fragment>
   );
@@ -241,11 +251,15 @@ export default function Combat() {
       dialog="You will lose combat. Do you want to proceed?"
       open={backTriggered}
       setOpen={setBackTriggered}
-      continueClicked={() => {
-        setBackTriggered(false);
-        setCombatStarted(false);
-        setRoundNum(0);
-      }}
+      continueClicked={handleAlertDialogClose}
+    />
+  );
+
+  const renderConfirmDialog = (
+    <ConfirmationDialog
+      open={addTriggered}
+      setOpen={setAddTriggered}
+      onClose={handleAddActor}
     />
   );
 
@@ -263,14 +277,8 @@ export default function Combat() {
           {combatStarted ? renderCombat : renderSetup}
         </Grid>
       </Grid>
-      {addTriggered && (
-        <ConfirmationDialog
-          open={addTriggered}
-          setOpen={setAddTriggered}
-          onClose={handleAddActor}
-        />
-        )}
-        {backTriggered && renderAlertDialog}
+      {addTriggered && renderConfirmDialog}
+      {backTriggered && renderAlertDialog}
     </div>
   );
 }

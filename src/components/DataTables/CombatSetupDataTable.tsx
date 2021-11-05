@@ -10,7 +10,7 @@ import { columns } from './CombatSetupColumns';
 import React from 'react';
 import '../../styles/App.css';
 
-export default function CombatSetupDataTable({ actors, loading, styling }) {
+export default function CombatSetupDataTable({ actors, loading, styling, onActorSelect }) {
   return (
     <Grid item container xs={12} spacing={2}>
       <Grid item xs={12}>
@@ -36,6 +36,7 @@ export default function CombatSetupDataTable({ actors, loading, styling }) {
             });
             console.log(actors);
           }}
+          onRowClick={onActorSelect}
         />
       </Grid>
     </Grid>

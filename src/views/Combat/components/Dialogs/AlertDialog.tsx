@@ -6,9 +6,14 @@ import {
   DialogActions,
   DialogContentText,
 } from '@mui/material';
-import { useState } from 'react';
 
-export default function AlertDialog({title, dialog, open, setOpen, continueClicked}) {
+export default function AlertDialog({
+  title,
+  dialog,
+  open,
+  setOpen,
+  continueClicked,
+}) {
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -25,8 +30,12 @@ export default function AlertDialog({title, dialog, open, setOpen, continueClick
           <DialogContentText>{dialog}</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button variant="contained" onClick={continueClicked}>Continue</Button>
-          <Button variant="contained" onClick={handleClose}>Exit</Button>
+          <Button variant="contained" onClick={continueClicked}>
+            Continue
+          </Button>
+          <Button variant="contained" onClick={handleClose}>
+            Exit
+          </Button>
         </DialogActions>
       </Dialog>
     </div>

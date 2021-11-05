@@ -41,13 +41,7 @@ export default function CombatDataTable({
           getRowClassName={(rowId) => {
             return `rowTheme-selected-${rowId.id === turnId}`;
           }}
-          onRowClick={(
-            params: GridRowParams,
-            event: MuiEvent<React.SyntheticEvent>,
-            details: GridCallbackDetails
-          ) => {
-            onActorSelect(params.row);
-          }}
+          onRowClick={onActorSelect}
         />
       </Grid>
     </React.Fragment>
