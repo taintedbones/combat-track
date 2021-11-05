@@ -7,6 +7,7 @@ import {
   MuiEvent,
   GridCallbackDetails,
 } from '@mui/x-data-grid';
+import ConfirmationDialog from './components/Dialogs/ConfirmationDialog';
 import CombatToolbar from './components/Toolbar';
 import CombatDataTable from '../../components/DataTables/CombatDataTable';
 import CombatSetupDataTable from '../../components/DataTables/CombatSetupDataTable';
@@ -43,7 +44,7 @@ const useStyles = makeStyles(() => {
 //       type="number"
 //       defaultValue={params.value}
 //       inputProps={{ min: 0, max: 99, style: { color: 'white', fontSize: 14 } }}
-      
+
 //     />
 //   );
 // }
@@ -60,6 +61,7 @@ export default function Combat() {
   const [turnIndex, setTurnIndex] = useState(0);
   const [selectedActor, setSelectedActor] = useState<any>();
   const [nextAvailId, setNextAvailId] = useState<number>(0);
+  const [addTriggered, setAddTriggered] = useState<boolean>(false);
 
   const handleStartCombat = () => {
     const temp = scenario.slice().sort((a, b) => b.initiative - a.initiative);
@@ -123,30 +125,60 @@ export default function Combat() {
     }
   };
 
-  // Adds blank row to table
-  const handleAddActor = () => {
-    // creates blank actor row to be added to table
-    let tempActor = {
-      initiative: 0,
-      hp: 0,
-      ac: 0,
-      dc: 0,
-      name: '',
-      type: '',
-      notes: '',
-      id: nextAvailId,
-    };
-
-    setNextAvailId(nextAvailId + 1); // ensures all ids are unique
-
-    let temp = sortedScenario.slice();
-    temp.push(tempActor);
-    setSortedScenario(temp);
+  const handleAddClicked = () => {
+    setAddTriggered(true);
   };
 
-  const handleScenarioChange = (event: SelectChangeEvent<any>, child?: object) => {
-     updateScenario(event.target.value);
-     setScenarioName(event.target.value);
+  // Adds blank row to table
+  const handleAddActor = (actor) => {
+    console.log("Added actor: ", actor);
+    let temp = sortedScenario.slice();
+    let tempActor;
+
+    if (actor === 'custom') {
+      // creates blank actor row to be added to table
+      tempActor = {
+        initiative: 0,
+        hp: 0,
+        ac: 0,
+        dc: 0,
+        name: '',
+        type: '',
+        notes: '',
+        id: nextAvailId,
+      };
+
+    } else {
+      tempActor ={
+        initiative: 0,
+        hp: actor.hp,
+        ac: actor.ac,
+        dc: actor.dc,
+        name: actor.name,
+        type: actor.type,
+        notes: actor.notes,
+        id: nextAvailId,
+      };
+    }
+    
+    temp.push(tempActor);
+    setNextAvailId(nextAvailId + 1); // ensures all ids are unique
+    setSortedScenario(temp);
+
+    console.log(sortedScenario);
+  };
+
+  const handleScenarioChange = (
+    event: SelectChangeEvent<any>,
+    child?: object
+  ) => {
+    updateScenario(event.target.value);
+    setScenarioName(event.target.value);
+  };
+
+  const confirmDialogClose = (value) => {
+    handleAddActor(value);
+    setAddTriggered(false);
   };
 
   useEffect(() => {
@@ -177,7 +209,7 @@ export default function Combat() {
       />
       <CombatToolbar
         onBackClicked={handleBackClicked}
-        onAddActor={handleAddActor}
+        onAddActor={handleAddClicked}
         onDeleteActor={handleDeleteActor}
         currentTurnName={currTurnName}
         roundNum={roundNum}
@@ -193,7 +225,11 @@ export default function Combat() {
         loading={loading}
         styling={classes.dataGrid}
       />
-      <CombatSetupToolbar onStartCombat={handleStartCombat} onScenarioChange={handleScenarioChange} scenarioName={scenarioName} />
+      <CombatSetupToolbar
+        onStartCombat={handleStartCombat}
+        onScenarioChange={handleScenarioChange}
+        scenarioName={scenarioName}
+      />
     </React.Fragment>
   );
 
@@ -211,6 +247,7 @@ export default function Combat() {
           {combatStarted ? renderCombat : renderSetup}
         </Grid>
       </Grid>
+      {addTriggered && <ConfirmationDialog open={addTriggered} setOpen={setAddTriggered} onClose={handleAddActor} />}
     </div>
   );
 }
