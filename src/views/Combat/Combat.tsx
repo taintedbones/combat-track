@@ -79,11 +79,15 @@ export default function Combat() {
   };
 
   useEffect(() => {
-    setIsValidCombat(checkValidity(sortedScenario));
-    setTurnIndex(0);
-    setCurrTurnName(sortedScenario[0].name);
-    setCurrTurnId(sortedScenario[0].id);
-  }, [sortedScenario]);
+    if (sortedScenario.length > 0) {
+      setIsValidCombat(checkValidity(sortedScenario));
+      setTurnIndex(0);
+      setCurrTurnName(sortedScenario[0].name);
+      setCurrTurnId(sortedScenario[0].id);
+    } else {
+      setIsValidCombat(false); // there are no actors
+    }
+  }, [sortedScenario]); // useEffect for combat events
 
   // manages turn index & round number at end of each actor turn
   const handleTurnEnd = () => {
@@ -114,7 +118,11 @@ export default function Combat() {
 
       temp.splice(index, 1);
       combatStarted ? setSortedScenario(temp) : setScenario(temp);
-      combatStarted ? setIsValidCombat(checkValidity(temp)) : setIsValidSetup(checkValidity(temp));
+      if (temp.length > 0) {
+        combatStarted ? setIsValidCombat(checkValidity(temp)) : setIsValidSetup(checkValidity(temp));
+      } else {
+        combatStarted ? setIsValidCombat(false) : setIsValidSetup(false);
+      }
     }
   };
 
