@@ -1,6 +1,5 @@
 .container {
   text-align: center;
-  background-color: #282c34;
   min-height: calc(100vh - 100px);
   padding: 100px 5% 0% 5%;
   color: white;

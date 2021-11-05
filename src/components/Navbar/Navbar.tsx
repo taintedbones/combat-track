@@ -1,16 +1,16 @@
 import { useState } from "react";
-import { Box, AppBar, Toolbar, Button, IconButton, Typography } from "@mui/material";
+import { Box, AppBar, Toolbar, Button, IconButton, Typography, useTheme } from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import Menu from "./components/Menu";
-// import LoginModal from "../LoginModal";
 
 import useAuth from "../../hooks/useAuth";
 import { User } from "@firebase/auth";
 
 export default function Navbar() {
+  const theme = useTheme();
   const [user, setUser] = useState<User | false>(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { signin, signinAnon, signout } = useAuth();
+  const { signin, signout } = useAuth();
 
   // callback to authenticate user
   const login = async () => {
@@ -35,7 +35,11 @@ export default function Navbar() {
   return (
     <>
       <Box>
-        <AppBar className="navbar" position="fixed">
+        <AppBar
+          className="navbar"
+          position="fixed"
+          sx={{ backgroundColor: `${theme.palette.secondary.light}`, color: `${theme.palette.secondary.contrastText}` }}
+        >
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               DnD Tracker
@@ -46,12 +50,12 @@ export default function Navbar() {
                 <Typography variant="h6" component="div" sx={{ mr: 4 }}>
                   {user.isAnonymous ? `Guest` : `${user.displayName}`}
                 </Typography>
-                <Button variant="contained" color="info" onClick={logout}>
+                <Button variant="contained" color="primary" onClick={logout}>
                   Logout
                 </Button>
               </>
             ) : (
-              <Button variant="contained" color="info" onClick={login}>
+              <Button variant="contained" color="primary" onClick={login}>
                 Login
               </Button>
             )}
@@ -59,7 +63,7 @@ export default function Navbar() {
             <IconButton
               size="large"
               edge="start"
-              color="inherit"
+              color="primary"
               aria-label="menu"
               sx={{ ml: 2 }}
               onClick={() => setMenuOpen(true)}

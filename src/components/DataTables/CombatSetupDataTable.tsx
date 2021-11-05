@@ -1,20 +1,17 @@
-import { Grid, Typography } from '@mui/material';
-import {
-  DataGrid,
-  GridCellEditCommitParams,
-  MuiEvent,
-  GridCallbackDetails,
-} from '@mui/x-data-grid';
+import { Grid, Typography } from "@mui/material";
+import { DataGrid, GridCellEditCommitParams, MuiEvent, GridCallbackDetails } from "@mui/x-data-grid";
 import { GiDiceShield } from "react-icons/gi";
-import { columns } from './CombatSetupColumns';
-import React from 'react';
-import '../../styles/App.css';
+import { columns } from "./CombatSetupColumns";
+import React from "react";
+import "../../styles/App.css";
 
-export default function CombatSetupDataTable({ actors, loading, styling, onActorSelect }) {
+export default function CombatSetupDataTable({ actors, loading, styling, onActorSelect, checkValidity, setIsValid }) {
   return (
     <Grid item container xs={12} spacing={2}>
       <Grid item xs={12}>
-        <Typography variant="h4"><GiDiceShield /> Combat Setup <GiDiceShield /></Typography>
+        <Typography variant="h4">
+          <GiDiceShield /> Combat Setup <GiDiceShield />
+        </Typography>
       </Grid>
       <Grid item xs={12}>
         <DataGrid
@@ -22,7 +19,7 @@ export default function CombatSetupDataTable({ actors, loading, styling, onActor
           rows={actors}
           columns={columns}
           hideFooterPagination
-          style={{ width: '100%', height: '60vh', color: 'white' }}
+          style={{ width: "100%", height: "60vh", color: "white" }}
           loading={loading}
           onCellEditCommit={(
             params: GridCellEditCommitParams,
@@ -34,7 +31,7 @@ export default function CombatSetupDataTable({ actors, loading, styling, onActor
                 value.initiative = params.value;
               }
             });
-            console.log(actors);
+            setIsValid(checkValidity(actors));
           }}
           onRowClick={onActorSelect}
         />
