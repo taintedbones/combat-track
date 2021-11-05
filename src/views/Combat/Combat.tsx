@@ -123,7 +123,7 @@ export default function Combat() {
 
       temp.splice(index, 1);
       if (index < turnIndex) {
-        setTurnIndex(turnIndex - 1);
+        index - 1 < 0 ? setTurnIndex(0) : setTurnIndex(turnIndex - 1);
       }
       combatStarted ? setSortedScenario(temp) : setScenario(temp);
       if (temp.length > 0) {
