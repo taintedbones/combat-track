@@ -1,42 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useScenario } from '../../hooks/useDatabase';
-import { Grid, TextField, SelectChangeEvent } from '@mui/material';
-import { makeStyles } from '@mui/styles';
-import {
-  GridCellEditCommitParams,
-  GridRowParams,
-  MuiEvent,
-  GridCallbackDetails,
-} from '@mui/x-data-grid';
-import ConfirmationDialog from './components/Dialogs/ConfirmationDialog';
-import AlertDialog from './components/Dialogs/AlertDialog';
-import CombatToolbar from './components/Toolbar';
-import CombatDataTable from '../../components/DataTables/CombatDataTable';
-import CombatSetupDataTable from '../../components/DataTables/CombatSetupDataTable';
-import CombatSetupToolbar from './components/SetupToolbar';
-import '../../styles/App.css';
-
-const useStyles = makeStyles(() => {
-  return {
-    root: {
-      paddingTop: '100px',
-    },
-    dataGrid: {
-      color: 'white',
-      width: '100%',
-      height: '60vh',
-      '& .col-header': {
-        backgroundColor: 'purple',
-      },
-      '& .rowTheme-selected-true': {
-        backgroundColor: '#ED6C02',
-      },
-    },
-    grid: {
-      height: '80%',
-    },
-  };
-});
+import React, { useEffect, useState } from "react";
+import { useScenario } from "../../hooks/useDatabase";
+import { Grid, SelectChangeEvent } from "@mui/material";
+import { GridCellEditCommitParams, GridRowParams, MuiEvent, GridCallbackDetails } from "@mui/x-data-grid";
+import ConfirmationDialog from "./components/Dialogs/ConfirmationDialog";
+import AlertDialog from "./components/Dialogs/AlertDialog";
+import CombatToolbar from "./components/Toolbar";
+import CombatDataTable from "../../components/DataTables/CombatDataTable";
+import CombatSetupDataTable from "../../components/DataTables/CombatSetupDataTable";
+import CombatSetupToolbar from "./components/SetupToolbar";
+import { useStyles } from "../../ThemeProvider";
 
 // spinner used to modify values on combat table
 // TODO: update spinners on change
@@ -54,7 +26,7 @@ const useStyles = makeStyles(() => {
 export default function Combat() {
   const classes = useStyles();
   const { loading, scenario, updateScenarioName, setScenario } = useScenario();
-  const [scenarioName, setScenarioName] = useState<string>('skeletons');
+  const [scenarioName, setScenarioName] = useState<string>("skeletons");
   const [sortedScenario, setSortedScenario] = useState<any[]>([]);
   const [combatStarted, setCombatStarted] = useState(false);
   const [roundNum, setRoundNum] = useState(1);
@@ -62,9 +34,11 @@ export default function Combat() {
   const [currTurnId, setCurrTurnId] = useState<number>();
   const [turnIndex, setTurnIndex] = useState(0);
   const [selectedActor, setSelectedActor] = useState<any>();
-  const [nextAvailId, setNextAvailId] = useState<number>(0);
+  const [nextAvailId, setNextAvailId] = useState<number>();
   const [addTriggered, setAddTriggered] = useState<boolean>(false);
   const [backTriggered, setBackTriggered] = useState<boolean>(false);
+  const [isValidSetup, setIsValidSetup] = useState<boolean>(false);
+  const [isValidCombat, setIsValidCombat] = useState<boolean>(true); // assume true if user proceeds to combat
 
   const handleStartCombat = () => {
     const temp = scenario.slice().sort((a, b) => b.initiative - a.initiative);
@@ -76,10 +50,12 @@ export default function Combat() {
     setCombatStarted(true);
     setTurnIndex(0);
     setSelectedActor(undefined);
+    setIsValidCombat(true);
   };
 
   const handleBackClicked = () => {
     setBackTriggered(true);
+    setIsValidSetup(checkValidity(scenario.slice())); // if back is clicked, we can assume all actors
   };
 
   const handleCombatCellCommit = (
@@ -92,11 +68,14 @@ export default function Combat() {
     temp[index][params.field] = params.value;
 
     // resort table by initiative if that field is altered
-    if (params.field === 'initiative') {
+    if (params.field === "initiative") {
       temp = temp.slice().sort((a, b) => b.initiative - a.initiative);
     }
 
+    console.log("commit");
+
     setSortedScenario(temp);
+    setIsValidCombat(checkValidity(temp));
     setTurnIndex(0);
     setCurrTurnName(sortedScenario[0].name);
     setCurrTurnId(sortedScenario[0].id);
@@ -112,10 +91,13 @@ export default function Combat() {
     }
   };
 
-  const handleSelectActor = (params: GridRowParams,
+  const handleSelectActor = (
+    params: GridRowParams,
     event: MuiEvent<React.SyntheticEvent>,
-    details: GridCallbackDetails) => {
+    details: GridCallbackDetails
+  ) => {
     setSelectedActor(params.row);
+    console.log("Selected actor: ", params.row);
   };
 
   // removes actor fromt the table
@@ -123,17 +105,19 @@ export default function Combat() {
     // Error handling: maybe add a confirmation dialog
     if (selectedActor !== undefined) {
       let temp;
-      combatStarted ? temp = sortedScenario.slice() : temp = scenario.slice();
+      combatStarted ? (temp = sortedScenario.slice()) : (temp = scenario.slice());
       let index = temp.findIndex((actor) => actor.id === selectedActor.id);
 
       temp.splice(index, 1);
-      setSortedScenario(temp);
+      combatStarted ? setSortedScenario(temp) : setScenario(temp);
+      combatStarted ? setIsValidCombat(checkValidity(temp)) : setIsValidSetup(checkValidity(temp)); // check validity on combat setup
     }
   };
 
   // Changes add state if add button clicked on combat or setup
   const handleAddClicked = () => {
     setAddTriggered(true);
+    combatStarted ? setNextAvailId(sortedScenario.length) : setNextAvailId(scenario.length);
   };
 
   // Adds actor chosen from dialog or empty row to either table
@@ -141,19 +125,19 @@ export default function Combat() {
     let temp;
     let tempActor;
 
-    combatStarted ? temp = sortedScenario.slice() : temp = scenario.slice();
+    combatStarted ? (temp = sortedScenario.slice()) : (temp = scenario.slice());
     console.log(temp);
 
-    if (actor === 'custom') {
+    if (actor === "custom") {
       // creates blank actor row to be added to table
       tempActor = {
         initiative: 0,
         hp: 0,
         ac: 0,
         dc: 0,
-        name: '',
-        type: '',
-        notes: '',
+        name: "",
+        type: "",
+        notes: "",
         id: nextAvailId,
       };
     } else {
@@ -170,16 +154,20 @@ export default function Combat() {
     }
 
     temp.push(tempActor);
-    setNextAvailId(nextAvailId + 1); // ensures all ids are unique
+    if (nextAvailId === undefined) {
+      setNextAvailId(0);
+    } else {
+      setNextAvailId(nextAvailId + 1); // ensures all ids are unique
+    }
+    setTurnIndex(0);
     combatStarted ? setSortedScenario(temp) : setScenario(temp);
+    combatStarted ? setIsValidCombat(false) : setIsValidSetup(false); // set false since all actors start with 0 initiative
   };
 
-  const handleScenarioChange = (
-    event: SelectChangeEvent<any>,
-    child?: object
-  ) => {
+  const handleScenarioChange = (event: SelectChangeEvent<any>, child?: object) => {
     updateScenarioName(event.target.value);
     setScenarioName(event.target.value);
+    setIsValidSetup(false); // invalid since every scenario has default 0 init
   };
 
   const handleAlertDialogClose = () => {
@@ -207,6 +195,11 @@ export default function Combat() {
     }
   }, [turnIndex, loading]);
 
+  const checkValidity = (actors: any[]) => {
+    const found = actors.find((actor) => actor.initiative <= 0);
+    return !found; // will return false if there is any actor with 0 initiative
+  };
+
   const renderCombat = (
     <React.Fragment>
       <CombatDataTable
@@ -220,7 +213,9 @@ export default function Combat() {
         onBackClicked={handleBackClicked}
         onAddActor={handleAddClicked}
         onDeleteActor={handleDeleteActor}
+        isValidActors={isValidCombat}
         currentTurnName={currTurnName}
+        turnIndex={turnIndex}
         roundNum={roundNum}
         endTurn={handleTurnEnd}
       />
@@ -234,6 +229,8 @@ export default function Combat() {
         loading={loading}
         styling={classes.dataGrid}
         onActorSelect={handleSelectActor}
+        checkValidity={checkValidity}
+        setIsValid={setIsValidSetup}
       />
       <CombatSetupToolbar
         onStartCombat={handleStartCombat}
@@ -241,6 +238,7 @@ export default function Combat() {
         scenarioName={scenarioName}
         onAddActor={handleAddClicked}
         onDeleteActor={handleDeleteActor}
+        isValidActors={isValidSetup}
       />
     </React.Fragment>
   );
@@ -256,23 +254,12 @@ export default function Combat() {
   );
 
   const renderConfirmDialog = (
-    <ConfirmationDialog
-      open={addTriggered}
-      setOpen={setAddTriggered}
-      onClose={handleAddActor}
-    />
+    <ConfirmationDialog open={addTriggered} setOpen={setAddTriggered} onClose={handleAddActor} />
   );
 
   return (
-    <div className="container">
-      <Grid
-        container
-        justifyContent="center"
-        direction="row"
-        spacing={2}
-        className={classes.grid}
-        xs={12}
-      >
+    <div className={classes.root}>
+      <Grid container justifyContent="center" direction="row" spacing={2} className={classes.grid}>
         <Grid item container xs={12} spacing={3}>
           {combatStarted ? renderCombat : renderSetup}
         </Grid>
