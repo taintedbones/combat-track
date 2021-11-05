@@ -62,7 +62,7 @@ export default function Combat() {
   const [currTurnId, setCurrTurnId] = useState<number>();
   const [turnIndex, setTurnIndex] = useState(0);
   const [selectedActor, setSelectedActor] = useState<any>();
-  const [nextAvailId, setNextAvailId] = useState<number>(0);
+  const [nextAvailId, setNextAvailId] = useState<number>();
   const [addTriggered, setAddTriggered] = useState<boolean>(false);
   const [backTriggered, setBackTriggered] = useState<boolean>(false);
 
@@ -112,10 +112,13 @@ export default function Combat() {
     }
   };
 
-  const handleSelectActor = (params: GridRowParams,
+  const handleSelectActor = (
+    params: GridRowParams,
     event: MuiEvent<React.SyntheticEvent>,
-    details: GridCallbackDetails) => {
+    details: GridCallbackDetails
+  ) => {
     setSelectedActor(params.row);
+    console.log("Selected actor: ", params.row);
   };
 
   // removes actor fromt the table
@@ -123,17 +126,22 @@ export default function Combat() {
     // Error handling: maybe add a confirmation dialog
     if (selectedActor !== undefined) {
       let temp;
-      combatStarted ? temp = sortedScenario.slice() : temp = scenario.slice();
+      combatStarted
+        ? (temp = sortedScenario.slice())
+        : (temp = scenario.slice());
       let index = temp.findIndex((actor) => actor.id === selectedActor.id);
 
       temp.splice(index, 1);
-      setSortedScenario(temp);
+      combatStarted? setSortedScenario(temp) : setScenario(temp);
     }
   };
 
   // Changes add state if add button clicked on combat or setup
   const handleAddClicked = () => {
     setAddTriggered(true);
+    combatStarted
+      ? setNextAvailId(sortedScenario.length)
+      : setNextAvailId(scenario.length);
   };
 
   // Adds actor chosen from dialog or empty row to either table
@@ -141,7 +149,7 @@ export default function Combat() {
     let temp;
     let tempActor;
 
-    combatStarted ? temp = sortedScenario.slice() : temp = scenario.slice();
+    combatStarted ? (temp = sortedScenario.slice()) : (temp = scenario.slice());
     console.log(temp);
 
     if (actor === 'custom') {
@@ -170,7 +178,11 @@ export default function Combat() {
     }
 
     temp.push(tempActor);
-    setNextAvailId(nextAvailId + 1); // ensures all ids are unique
+    if (nextAvailId === undefined) {
+      setNextAvailId(0);
+    } else {
+      setNextAvailId(nextAvailId + 1); // ensures all ids are unique
+    }
     combatStarted ? setSortedScenario(temp) : setScenario(temp);
   };
 
