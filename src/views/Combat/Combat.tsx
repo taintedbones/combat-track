@@ -110,7 +110,6 @@ export default function Combat() {
 
       temp.splice(index, 1);
       combatStarted ? setSortedScenario(temp) : setScenario(temp);
-      combatStarted ? setIsValidCombat(checkValidity(temp)) : setIsValidSetup(checkValidity(temp)); // check validity on combat setup
     }
   };
 
