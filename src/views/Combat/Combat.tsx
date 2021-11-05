@@ -8,6 +8,7 @@ import {
   GridCallbackDetails,
 } from '@mui/x-data-grid';
 import ConfirmationDialog from './components/Dialogs/ConfirmationDialog';
+import AlertDialog from './components/Dialogs/AlertDialog';
 import CombatToolbar from './components/Toolbar';
 import CombatDataTable from '../../components/DataTables/CombatDataTable';
 import CombatSetupDataTable from '../../components/DataTables/CombatSetupDataTable';
@@ -62,6 +63,7 @@ export default function Combat() {
   const [selectedActor, setSelectedActor] = useState<any>();
   const [nextAvailId, setNextAvailId] = useState<number>(0);
   const [addTriggered, setAddTriggered] = useState<boolean>(false);
+  const [backTriggered, setBackTriggered] = useState<boolean>(false);
 
   const handleStartCombat = () => {
     const temp = scenario.slice().sort((a, b) => b.initiative - a.initiative);
@@ -76,8 +78,9 @@ export default function Combat() {
 
   const handleBackClicked = () => {
     // Error handling: display prompt asking if user is sure at some point
-    setCombatStarted(false);
-    setRoundNum(0);
+    // setCombatStarted(false);
+    // setRoundNum(0);
+    setBackTriggered(true);
   };
 
   const handleCombatCellCommit = (
@@ -131,7 +134,7 @@ export default function Combat() {
 
   // Adds blank row to table
   const handleAddActor = (actor) => {
-    console.log("Added actor: ", actor);
+    console.log('Added actor: ', actor);
     let temp = sortedScenario.slice();
     let tempActor;
 
@@ -147,9 +150,8 @@ export default function Combat() {
         notes: '',
         id: nextAvailId,
       };
-
     } else {
-      tempActor ={
+      tempActor = {
         initiative: 0,
         hp: actor.hp,
         ac: actor.ac,
@@ -160,7 +162,7 @@ export default function Combat() {
         id: nextAvailId,
       };
     }
-    
+
     temp.push(tempActor);
     setNextAvailId(nextAvailId + 1); // ensures all ids are unique
     setSortedScenario(temp);
@@ -233,6 +235,20 @@ export default function Combat() {
     </React.Fragment>
   );
 
+  const renderAlertDialog = (
+    <AlertDialog
+      title="Warning"
+      dialog="You will lose combat. Do you want to proceed?"
+      open={backTriggered}
+      setOpen={setBackTriggered}
+      continueClicked={() => {
+        setBackTriggered(false);
+        setCombatStarted(false);
+        setRoundNum(0);
+      }}
+    />
+  );
+
   return (
     <div className="container">
       <Grid
@@ -247,7 +263,14 @@ export default function Combat() {
           {combatStarted ? renderCombat : renderSetup}
         </Grid>
       </Grid>
-      {addTriggered && <ConfirmationDialog open={addTriggered} setOpen={setAddTriggered} onClose={handleAddActor} />}
+      {addTriggered && (
+        <ConfirmationDialog
+          open={addTriggered}
+          setOpen={setAddTriggered}
+          onClose={handleAddActor}
+        />
+        )}
+        {backTriggered && renderAlertDialog}
     </div>
   );
 }
