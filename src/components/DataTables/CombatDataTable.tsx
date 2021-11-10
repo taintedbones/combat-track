@@ -1,11 +1,13 @@
-import { DataGrid, GridSortModel, GridRowParams, MuiEvent, GridCallbackDetails, GridRowId } from "@mui/x-data-grid";
+import { useState } from "react";
+import { useStyles } from "../../ThemeProvider";
+
+import { DataGrid, GridSortModel, GridRowId } from "@mui/x-data-grid";
 import { GiAxeSword } from "react-icons/gi";
 import { columns } from "./CombatColumns";
-import { useState } from "react";
-import React from "react";
 import { Grid, Typography, ClickAwayListener } from "@mui/material";
 
-export default function CombatDataTable({ actors, styling, turnId, onActorSelect, onCellCommit }) {
+export default function CombatDataTable({ actors, turnId, onActorSelect, onCellCommit }) {
+  const classes = useStyles();
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
   const [sortModel, setSortModel] = useState<GridSortModel>([
     {
@@ -15,7 +17,7 @@ export default function CombatDataTable({ actors, styling, turnId, onActorSelect
   ]);
 
   return (
-    <React.Fragment>
+    <>
       <Grid item xs={12}>
         <Typography variant="h4">
           <GiAxeSword /> Combat <GiAxeSword />
@@ -24,7 +26,7 @@ export default function CombatDataTable({ actors, styling, turnId, onActorSelect
       <Grid item xs={12}>
         <ClickAwayListener onClickAway={() => setSelectionModel([])}>
           <DataGrid
-            className={styling}
+            className={classes.dataGrid}
             rows={actors}
             columns={columns}
             sortModel={sortModel}
@@ -39,6 +41,6 @@ export default function CombatDataTable({ actors, styling, turnId, onActorSelect
           />
         </ClickAwayListener>
       </Grid>
-    </React.Fragment>
+    </>
   );
 }
