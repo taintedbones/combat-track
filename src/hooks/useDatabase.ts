@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import {
+  arrayUnion,
   collection,
+  addDoc,
   getDocs,
   getDoc,
   setDoc,
   doc,
   DocumentData,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore/";
 import { database } from "../firebaseConfig";
@@ -242,13 +245,27 @@ export const useCustomActors = (user) => {
         setError(true);
       }
     };
-    fetchActors();
-  }, [setError, setLoading, setCustomActors]);
+    if(userId){
+      fetchActors();
+    }
+  }, [setError, setLoading, customActors, userId]);
 
   return { error, loading, customActors, setUserId };
 };
 
 // addActor(newActor, userId)
+export const addActor = async(newActor, uid) => {
+  //add actor to table
+  const docRef = await addDoc(collection(database, "actors"), newActor);
+  console.log("Added doc: ", docRef.id);
+
+  // use docRef.id for reference
+  const userRef = doc(database, "users", uid);
+  // add reference to user actors array
+  await updateDoc(userRef, {
+    actors: arrayUnion(docRef.path)
+  });
+};
 // deleteActor()
 // editActor()
 

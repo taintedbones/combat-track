@@ -1,11 +1,11 @@
 import { Button, Grid } from '@mui/material';
 import React from 'react';
 
-export default function ActorToolbar() {
+export default function ActorToolbar({ onAddClicked }) {
   return (
       <React.Fragment>
         <Grid item xs>
-          <Button variant="contained" fullWidth>
+          <Button variant="contained" fullWidth onClick={onAddClicked}>
             Add Actor
           </Button>
         </Grid>
