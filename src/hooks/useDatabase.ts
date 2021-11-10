@@ -1,12 +1,63 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   collection,
   getDocs,
   getDoc,
+  setDoc,
   doc,
   DocumentData,
-} from 'firebase/firestore/';
-import { database } from '../firebaseConfig';
+  query,
+  where,
+} from "firebase/firestore/";
+import { database } from "../firebaseConfig";
+import { User } from "@firebase/auth";
+
+interface Actor {
+  name: string;
+  ac: number;
+  dc: number;
+  hp: number;
+  initiative: number;
+  notes: string;
+  type: string;
+  custom: boolean;
+}
+
+export const checkUserExists = async (userUid) => {
+  let userList: any[] = [];
+  const snapshot = await getDocs(collection(database, "users"));
+  snapshot.forEach((doc) => userList.push(doc.id));
+  return userList.includes(userUid);
+};
+
+async function getListOfScenarios() {
+  const snapshot = await getDocs(collection(database, "scenarios"));
+  let scenarioList: any[] = [];
+  snapshot.forEach((doc) => scenarioList.push(doc.id));
+  return scenarioList;
+}
+
+async function getActorFromRef(refPath) {
+  const docName = refPath.split("/")[1];
+  const docRef = doc(database, "actors", docName);
+  const snapshot = await getDoc(docRef);
+  return snapshot.data();
+}
+
+export const addUser = async (user: User) => {
+  try {
+    await setDoc(doc(database, "users", user.uid), {
+      name: user.displayName,
+      email: user.email,
+      actors: [],
+      party: [],
+      scenarios: [],
+    });
+    console.log(user.displayName, " successfully added to users!");
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 export const useActors = () => {
   const [error, setError] = useState(false);
@@ -17,11 +68,12 @@ export const useActors = () => {
     const fetchActors = async () => {
       setLoading(true);
       try {
-        const actorsCol = collection(database, 'actors');
-        const actorsSnapshot = await getDocs(actorsCol);
+        const actorsRef = collection(database, "actors");
+        const q = query(actorsRef, where("custom", "==", false));
+        const actorsSnapshot = await getDocs(q);
         const actorsList = actorsSnapshot.docs.map((doc) => doc.data()); // create list map of actors from snapshot
         const actorsIdList = actorsList.map((actor, idx) =>
-          Object.defineProperty(actor, 'id', { value: idx })
+          Object.defineProperty(actor, "id", { value: idx })
         );
         const sortedList = actorsIdList.sort((a, b) => {
           if (a.initiative === b.initiative) {
@@ -31,7 +83,7 @@ export const useActors = () => {
           }
         });
         const temp = sortedList.map((actor, index) =>
-          Object.defineProperty(actor, 'index', { value: index })
+          Object.defineProperty(actor, "index", { value: index })
         );
         // console.log(actorsIdList);
         setLoading(false);
@@ -49,38 +101,24 @@ export const useActors = () => {
   return { error, loading, actors };
 };
 
-async function getListOfScenarios() {
-  const snapshot = await getDocs(collection(database, 'scenarios'));
-  let scenarioList: any[] = [];
-  snapshot.forEach((doc) => scenarioList.push(doc.id));
-  return scenarioList;
-}
-
 // get specific scenario (maybe turn this vv into specific)
 export const useScenario = () => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [scenario, setScenario] = useState<any[]>([]);
-  const [scenarioName, setScenarioName] = useState<string>('skeletons');
-
-  async function getActorFromRef(refPath) {
-    const docName = refPath.split('/')[1];
-    const docRef = doc(database, 'actors', docName);
-    const snapshot = await getDoc(docRef);
-    return snapshot.data();
-  }
+  const [scenarioName, setScenarioName] = useState<string>("skeletons");
 
   const updateScenarioName = (scenarioName) => {
-    setScenarioName(scenarioName)
-  }
+    setScenarioName(scenarioName);
+  };
 
   useEffect(() => {
     const fetchScenario = async () => {
       setLoading(true);
       try {
-        const docRef = doc(database, 'scenarios', scenarioName);
+        const docRef = doc(database, "scenarios", scenarioName);
         const scenarioSnapshot = await getDoc(docRef);
-        const actorRefsList = scenarioSnapshot.get('actors');
+        const actorRefsList = scenarioSnapshot.get("actors");
 
         const actorList = await Promise.all(
           actorRefsList.map(async (actorRef, idx) => {
@@ -118,7 +156,7 @@ export const useUsers = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const usersCol = collection(database, 'users');
+        const usersCol = collection(database, "users");
         const usersSnapshot = await getDocs(usersCol);
         const usersList = usersSnapshot.docs.map((doc) => doc.data());
         const usersIdList = usersList.map((actor, index) => ({
@@ -140,3 +178,79 @@ export const useUsers = () => {
 
   return { error, loading, users };
 };
+
+// get array of party member objects
+async function getParty(userId) {
+  const docRef = doc(database, "users", userId);
+  const snapshot = await getDoc(docRef);
+  const partyRefList = snapshot.get("party");
+
+  const actorList = await Promise.all(
+    partyRefList.map(async (actorRef, idx) => {
+      try {
+        const actor = await getActorFromRef(actorRef.path);
+        return {
+          ...actor,
+          id: idx,
+          doc: actorRef.path.split('/')[1],
+        };
+      } catch (err) {
+        console.log(err);
+      }
+    })
+  );
+
+  return actorList;
+}
+
+export const useCustomActors = (user) => {
+  const [error, setError] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [userId, setUserId] = useState<any>(user.uid);
+  const [customActors, setCustomActors] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchActors = async () => {
+      setLoading(true);
+      try {
+        const docRef = doc(database, "users", userId);
+        console.log(docRef);
+        const snapshot = await getDoc(docRef);
+        const actorRefsList = snapshot.get("actors");
+        console.log(actorRefsList);
+
+        let actorList = await Promise.all(actorRefsList.map(async (actorRef, idx) => {
+          try {
+            const actor = await getActorFromRef(actorRef.path);
+            const docName = actorRef.path.split('/')[1];
+            console.log("actor ref: ", docName);
+            return {
+              ...actor,
+              id: idx,
+              doc: docName,
+            };
+          } catch (err) {
+            console.log(err);
+          }
+        }));
+
+        setCustomActors(actorList);
+        setLoading(false);
+      } catch (error) {
+        console.error(error);
+        setLoading(false);
+        setError(true);
+      }
+    };
+    fetchActors();
+  }, [setError, setLoading, setCustomActors]);
+
+  return { error, loading, customActors, setUserId };
+};
+
+// addActor(newActor, userId)
+// deleteActor()
+// editActor()
+
+// useCustomScenarios
+
