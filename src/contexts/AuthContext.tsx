@@ -1,5 +1,12 @@
 import { useState, useEffect, createContext } from "react";
-import { getAuth, signInAnonymously, signOut, signInWithPopup, GoogleAuthProvider, User } from "firebase/auth";
+import {
+  getAuth,
+  signInAnonymously,
+  signOut,
+  signInWithPopup,
+  GoogleAuthProvider,
+  User,
+} from "firebase/auth";
 
 interface AuthContextProps {
   user: false | User;
@@ -25,6 +32,7 @@ export const AuthContextProvider = ({ children }) => {
     const provider = new GoogleAuthProvider();
     const credential = await signInWithPopup(auth, provider);
     const user = credential.user;
+
     setUser(user);
     return user;
   };
@@ -61,7 +69,11 @@ export const AuthContextProvider = ({ children }) => {
   }, []);
 
   // Return the user object and auth methods
-  return <AuthContext.Provider value={{ user, signin, signinAnon, signout }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, signin, signinAnon, signout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 
   // return {
   //   user,
