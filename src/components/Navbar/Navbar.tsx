@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Box, AppBar, Toolbar, Button, IconButton, Typography, useTheme } from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import Menu from "./components/Menu";
+import { checkUserExists, addUser } from "../../hooks/useDatabase";
 
 import useAuth from "../../hooks/useAuth";
 import { User } from "@firebase/auth";
@@ -16,7 +17,12 @@ export default function Navbar() {
   const login = async () => {
     try {
       const user = await signin();
-      console.log(user);
+      const exists = (await checkUserExists(user.uid)).valueOf();
+      if(!exists){
+        addUser(user);
+        console.log(user.displayName, " was successfully added to users!");
+      }
+      console.log("user: ", user);
       setUser(user);
     } catch (error) {
       console.error("There was an error logging into your google account. Try again.");
