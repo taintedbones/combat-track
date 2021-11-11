@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   List,
   ListItem,
@@ -9,11 +9,10 @@ import {
   Dialog,
   Button,
   Typography,
-} from '@mui/material';
-import { useActors } from '../../../../hooks/useDatabase';
+} from "@mui/material";
+import { useActors } from "../../../../hooks/useDatabase";
 
 export default function ConfirmationDialog({ open, setOpen, onClose }) {
-  //   const [open, setOpen] = useState(isOpen);
   const { actors } = useActors();
 
   const handleListItemClick = (value: any) => {
@@ -27,25 +26,17 @@ export default function ConfirmationDialog({ open, setOpen, onClose }) {
 
   return (
     <React.Fragment>
-      <Dialog open={open} fullWidth={true} maxWidth={'xs'} scroll="paper">
+      <Dialog open={open} fullWidth={true} maxWidth={"xs"} scroll="paper">
         <DialogTitle>
-          <Typography variant="h5">Select Actor</Typography>
+          <Typography>Select Actor</Typography>
         </DialogTitle>
         <DialogContent>
           <List>
-            <ListItem
-              autoFocus
-              button
-              onClick={() => handleListItemClick('custom')}
-            >
+            <ListItem autoFocus button onClick={() => handleListItemClick("custom")}>
               <ListItemText>Custom</ListItemText>
             </ListItem>
             {actors.map((actor) => (
-              <ListItem
-                button
-                onClick={() => handleListItemClick(actor)}
-                key={actor.name}
-              >
+              <ListItem button onClick={() => handleListItemClick(actor)} key={actor.name}>
                 <ListItemText primary={actor.name} />
               </ListItem>
             ))}

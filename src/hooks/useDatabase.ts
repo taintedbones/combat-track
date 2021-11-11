@@ -12,7 +12,6 @@ import {
   DocumentData,
   query,
   updateDoc,
-  onSnapshot,
   where,
 } from 'firebase/firestore/';
 import { database } from '../firebaseConfig';
@@ -103,9 +102,7 @@ export const useActors = () => {
         const q = query(actorsRef, where('custom', '==', false));
         const actorsSnapshot = await getDocs(q);
         const actorsList = actorsSnapshot.docs.map((doc) => doc.data()); // create list map of actors from snapshot
-        const actorsIdList = actorsList.map((actor, idx) =>
-          Object.defineProperty(actor, 'id', { value: idx })
-        );
+        const actorsIdList = actorsList.map((actor, idx) => Object.defineProperty(actor, "id", { value: idx }));
         const sortedList = actorsIdList.sort((a, b) => {
           if (a.initiative === b.initiative) {
             return b.name - a.name;
@@ -113,9 +110,7 @@ export const useActors = () => {
             return b.initiative - a.initiative;
           }
         });
-        const temp = sortedList.map((actor, index) =>
-          Object.defineProperty(actor, 'index', { value: index })
-        );
+        const temp = sortedList.map((actor, index) => Object.defineProperty(actor, "index", { value: index }));
         // console.log(actorsIdList);
         setLoading(false);
         setActors(temp);
@@ -146,9 +141,9 @@ export const useScenario = () => {
     const fetchScenario = async () => {
       setLoading(true);
       try {
-        const docRef = doc(database, 'scenarios', scenarioName);
+        const docRef = doc(database, "scenarios", scenarioName);
         const scenarioSnapshot = await getDoc(docRef);
-        const actorRefsList = scenarioSnapshot.get('actors');
+        const actorRefsList = scenarioSnapshot.get("actors");
 
         const actorList = await Promise.all(
           actorRefsList.map(async (actorRef, idx) => {
@@ -168,6 +163,7 @@ export const useScenario = () => {
         setLoading(false);
       } catch (error) {
         console.error(error);
+        setError(true);
         setLoading(false);
       }
     };
@@ -186,7 +182,7 @@ export const useUsers = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const usersCol = collection(database, 'users');
+        const usersCol = collection(database, "users");
         const usersSnapshot = await getDocs(usersCol);
         const usersList = usersSnapshot.docs.map((doc) => doc.data());
         const usersIdList = usersList.map((actor, index) => ({
