@@ -51,6 +51,30 @@ async function getActorFromRef(refPath) {
   return snapshot.data();
 }
 
+// get array of party member objects
+async function getParty(userId) {
+  const docRef = doc(database, 'users', userId);
+  const snapshot = await getDoc(docRef);
+  const partyRefList = snapshot.get('party');
+
+  const actorList = await Promise.all(
+    partyRefList.map(async (actorRef, idx) => {
+      try {
+        const actor = await getActorFromRef(actorRef.path);
+        return {
+          ...actor,
+          id: idx,
+          doc: actorRef.path.split('/')[1],
+        };
+      } catch (err) {
+        console.log(err);
+      }
+    })
+  );
+
+  return actorList;
+}
+
 export const addUser = async (user: User) => {
   try {
     await setDoc(doc(database, 'users', user.uid), {
@@ -103,12 +127,11 @@ export const useActors = () => {
       }
     };
     fetchActors();
-  }, [setError, setLoading, setActors]);
+  }, [setError, setLoading, setActors, user]);
 
   return { error, loading, actors };
 };
 
-// get specific scenario (maybe turn this vv into specific)
 export const useScenario = () => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -185,30 +208,6 @@ export const useUsers = () => {
 
   return { error, loading, users };
 };
-
-// get array of party member objects
-async function getParty(userId) {
-  const docRef = doc(database, 'users', userId);
-  const snapshot = await getDoc(docRef);
-  const partyRefList = snapshot.get('party');
-
-  const actorList = await Promise.all(
-    partyRefList.map(async (actorRef, idx) => {
-      try {
-        const actor = await getActorFromRef(actorRef.path);
-        return {
-          ...actor,
-          id: idx,
-          doc: actorRef.path.split('/')[1],
-        };
-      } catch (err) {
-        console.log(err);
-      }
-    })
-  );
-
-  return actorList;
-}
 
 export const useCustomActors = () => {
   const { user } = UseAuth();
@@ -356,5 +355,3 @@ export const editActor = async (actor, uid) => {
     console.error(err);
   }
 };
-
-// useCustomScenarios
