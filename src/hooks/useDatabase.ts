@@ -1,12 +1,6 @@
-import { useState, useEffect } from 'react';
-import {
-  collection,
-  getDocs,
-  getDoc,
-  doc,
-  DocumentData,
-} from 'firebase/firestore/';
-import { database } from '../firebaseConfig';
+import { useState, useEffect } from "react";
+import { collection, getDocs, getDoc, doc, DocumentData } from "firebase/firestore/";
+import { database } from "../firebaseConfig";
 
 export const useActors = () => {
   const [error, setError] = useState(false);
@@ -17,12 +11,10 @@ export const useActors = () => {
     const fetchActors = async () => {
       setLoading(true);
       try {
-        const actorsCol = collection(database, 'actors');
+        const actorsCol = collection(database, "actors");
         const actorsSnapshot = await getDocs(actorsCol);
         const actorsList = actorsSnapshot.docs.map((doc) => doc.data()); // create list map of actors from snapshot
-        const actorsIdList = actorsList.map((actor, idx) =>
-          Object.defineProperty(actor, 'id', { value: idx })
-        );
+        const actorsIdList = actorsList.map((actor, idx) => Object.defineProperty(actor, "id", { value: idx }));
         const sortedList = actorsIdList.sort((a, b) => {
           if (a.initiative === b.initiative) {
             return b.name - a.name;
@@ -30,9 +22,7 @@ export const useActors = () => {
             return b.initiative - a.initiative;
           }
         });
-        const temp = sortedList.map((actor, index) =>
-          Object.defineProperty(actor, 'index', { value: index })
-        );
+        const temp = sortedList.map((actor, index) => Object.defineProperty(actor, "index", { value: index }));
         // console.log(actorsIdList);
         setLoading(false);
         setActors(temp);
@@ -50,37 +40,32 @@ export const useActors = () => {
 };
 
 async function getListOfScenarios() {
-  const snapshot = await getDocs(collection(database, 'scenarios'));
+  const snapshot = await getDocs(collection(database, "scenarios"));
   let scenarioList: any[] = [];
   snapshot.forEach((doc) => scenarioList.push(doc.id));
   return scenarioList;
 }
 
 // get specific scenario (maybe turn this vv into specific)
-export const useScenario = () => {
+export const useScenario = (scenarioName: string) => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [scenario, setScenario] = useState<any[]>([]);
-  const [scenarioName, setScenarioName] = useState<string>('skeletons');
 
   async function getActorFromRef(refPath) {
-    const docName = refPath.split('/')[1];
-    const docRef = doc(database, 'actors', docName);
+    const docName = refPath.split("/")[1];
+    const docRef = doc(database, "actors", docName);
     const snapshot = await getDoc(docRef);
     return snapshot.data();
-  }
-
-  const updateScenarioName = (scenarioName) => {
-    setScenarioName(scenarioName)
   }
 
   useEffect(() => {
     const fetchScenario = async () => {
       setLoading(true);
       try {
-        const docRef = doc(database, 'scenarios', scenarioName);
+        const docRef = doc(database, "scenarios", scenarioName);
         const scenarioSnapshot = await getDoc(docRef);
-        const actorRefsList = scenarioSnapshot.get('actors');
+        const actorRefsList = scenarioSnapshot.get("actors");
 
         const actorList = await Promise.all(
           actorRefsList.map(async (actorRef, idx) => {
@@ -100,13 +85,14 @@ export const useScenario = () => {
         setLoading(false);
       } catch (error) {
         console.error(error);
+        setError(true);
         setLoading(false);
       }
     };
     fetchScenario();
   }, [scenarioName]);
 
-  return { error, loading, scenario, updateScenarioName, setScenario };
+  return { error, loading, scenario };
 };
 
 export const useUsers = () => {
@@ -118,7 +104,7 @@ export const useUsers = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const usersCol = collection(database, 'users');
+        const usersCol = collection(database, "users");
         const usersSnapshot = await getDocs(usersCol);
         const usersList = usersSnapshot.docs.map((doc) => doc.data());
         const usersIdList = usersList.map((actor, index) => ({

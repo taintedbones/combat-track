@@ -1,23 +1,6 @@
-import {
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  DialogContentText,
-} from '@mui/material';
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText } from "@mui/material";
 
-export default function AlertDialog({
-  title,
-  dialog,
-  open,
-  setOpen,
-  continueClicked,
-}) {
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
+export default function AlertDialog({ title, dialog, open, setOpen, continueClicked }) {
   const handleClose = () => {
     setOpen(false);
   };

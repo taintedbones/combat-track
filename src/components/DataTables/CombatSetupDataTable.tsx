@@ -1,11 +1,12 @@
+import { useStyles } from "../../ThemeProvider";
+
 import { Grid, Typography } from "@mui/material";
-import { DataGrid, GridCellEditCommitParams, MuiEvent, GridCallbackDetails } from "@mui/x-data-grid";
+import { DataGrid, GridCellEditCommitParams } from "@mui/x-data-grid";
 import { GiDiceShield } from "react-icons/gi";
 import { columns } from "./CombatSetupColumns";
-import React from "react";
-import "../../styles/App.css";
 
-export default function CombatSetupDataTable({ actors, loading, styling, onActorSelect, checkValidity, setIsValid }) {
+export default function CombatSetupDataTable({ actors, loading, onActorSelect, onCellCommit }) {
+  const classes = useStyles();
   return (
     <Grid item container xs={12} spacing={2}>
       <Grid item xs={12}>
@@ -15,26 +16,15 @@ export default function CombatSetupDataTable({ actors, loading, styling, onActor
       </Grid>
       <Grid item xs={12}>
         <DataGrid
-          className={styling}
+          className={classes.dataGrid}
           rows={actors}
           columns={columns}
-          hideFooterPagination
-          style={{ width: "100%", height: "60vh", color: "white" }}
           loading={loading}
-          onCellEditCommit={(
-            params: GridCellEditCommitParams,
-            event: MuiEvent<React.SyntheticEvent>,
-            details: GridCallbackDetails
-          ) => {
-            actors.forEach((value, index) => {
-              if (value.id === params.id) {
-                value[params.field] = params.value; // set the value of the associated field (ex. name, initiative, etc)
-                console.log(value[params.field]);
-              }
-            });
-            setIsValid(checkValidity(actors));
+          onCellEditCommit={(params: GridCellEditCommitParams) => {
+            onCellCommit(params);
           }}
           onRowClick={onActorSelect}
+          hideFooterPagination
         />
       </Grid>
     </Grid>
