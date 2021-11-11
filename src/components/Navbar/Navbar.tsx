@@ -5,13 +5,11 @@ import Menu from "./components/Menu";
 import { checkUserExists, addUser } from "../../hooks/useDatabase";
 
 import useAuth from "../../hooks/useAuth";
-import { User } from "@firebase/auth";
 
 export default function Navbar() {
   const theme = useTheme();
-  const [user, setUser] = useState<User | false>(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { signin, signout } = useAuth();
+  const { user, signin, signout } = useAuth();
 
   // callback to authenticate user
   const login = async () => {
@@ -22,8 +20,6 @@ export default function Navbar() {
         addUser(user);
         console.log(user.displayName, " was successfully added to users!");
       }
-      console.log("user: ", user);
-      setUser(user);
     } catch (error) {
       console.error("There was an error logging into your google account. Try again.");
     }
@@ -32,7 +28,6 @@ export default function Navbar() {
   const logout = async () => {
     try {
       await signout();
-      setUser(false);
     } catch (error) {
       console.error("There was an error logging out of your google account. Try again.");
     }
