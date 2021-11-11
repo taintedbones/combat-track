@@ -4,12 +4,6 @@ import { AuthContext, AuthContextProvider } from "../../contexts/AuthContext";
 import { useActors, useCustomActors, useUsers } from "../../hooks/useDatabase";
 import { columns } from "./ActorsColumns";
 
-// const style = {
-//   grid: {
-
-//   }
-// };
-
 export default function DataTable({ classes, actors, loading, onSelect, selected }) {
   return (
     <div className={classes.container}>

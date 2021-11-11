@@ -7,6 +7,7 @@ import EditActorForm from './components/EditActorForm';
 import React, { useState, useEffect } from 'react';
 import useAuth from '../../hooks/useAuth';
 import { useCustomActors, deleteActor } from '../../hooks/useDatabase';
+import AlertDialog from '../Combat/components/Dialogs/AlertDialog';
 import { GridRowParams, MuiEvent, GridCallbackDetails } from '@mui/x-data-grid';
 
 export default function EditActors() {
@@ -18,6 +19,7 @@ export default function EditActors() {
   const [addTriggered, setAddTriggered] = useState<boolean>(false);
   const [editTriggered, setEditTriggered] = useState<boolean>(false);
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(true);
+  const [alertTriggered, setAlertTriggered] = useState<boolean>(false);
 
   const handleAddClicked = () => {
     setAddTriggered(true);
@@ -29,9 +31,14 @@ export default function EditActors() {
   };
 
   const handleDeleteClicked = () => {
+    setAlertTriggered(true);
+  };
+
+  const handleDeleteActor = () => {
     if (user !== false) {
       deleteActor(selectedActor, user.uid);
     }
+    setAlertTriggered(false);
   };
 
   const handleSelectActor = (
@@ -70,6 +77,17 @@ export default function EditActors() {
     </React.Fragment>
   );
 
+  const renderAlert = (
+    <React.Fragment>
+      <AlertDialog 
+        title="Confirm Delete" 
+        dialog="Are you sure you want to delete this actor?"
+        open={alertTriggered} 
+        setOpen={setAlertTriggered} 
+        continueClicked={handleDeleteActor} />
+    </React.Fragment>
+  );
+
   useEffect(() => {
     console.log('EditActors -> useEffect()');
   }, [user, customActors, buttonDisabled]); // useEffect for combat events
@@ -95,6 +113,7 @@ export default function EditActors() {
         />
         {addTriggered && renderAddActorForm}
         {editTriggered && renderEditActorForm}
+        {alertTriggered && renderAlert}
       </Grid>
     </div>
   );
