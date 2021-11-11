@@ -127,7 +127,7 @@ export const useActors = () => {
       }
     };
     fetchActors();
-  }, [setError, setLoading, setActors, user]);
+  }, [setError, setLoading, setActors]);
 
   return { error, loading, actors };
 };
