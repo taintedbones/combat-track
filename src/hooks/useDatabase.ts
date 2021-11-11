@@ -270,16 +270,12 @@ export const useCustomActors = () => {
   return { error, changeMade, setChangeMade, loading, customActors };
 };
 
-// addActor(newActor, userId)
 export const addActor = async (newActor, uid) => {
-  //add actor to table
   try {
     const docRef = await addDoc(collection(database, 'actors'), newActor);
     console.log('Added doc: ', docRef.id);
 
-    // use docRef.id for reference
     const userRef = doc(database, 'users', uid);
-    // add reference to user actors array
     await updateDoc(userRef, {
       actors: arrayUnion(docRef),
     });
@@ -288,7 +284,6 @@ export const addActor = async (newActor, uid) => {
   }
 };
 
-// deleteActor()
 export const deleteActor = async (actor, uid) => {
   try {
     const docRef = doc(database, 'actors', actor.doc)
@@ -305,5 +300,22 @@ export const deleteActor = async (actor, uid) => {
 };
 
 // editActor()
+export const editActor = async (actor) => {
+  try {
+    const docRef = doc(database, 'actors', actor.doc);
+    console.log("actor to be edited: ", docRef);
+    await updateDoc(docRef, {
+      name: actor.name,
+      ac: actor.ac,
+      dc: actor.dc,
+      hp: actor.hp,
+      notes: actor.notes,
+      type: actor.type
+    });
+    console.log("actor successfully edited");
+  } catch (err) {
+    console.error(err);
+  }
+};
 
 // useCustomScenarios
