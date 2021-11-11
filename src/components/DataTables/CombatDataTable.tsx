@@ -29,7 +29,7 @@ export default function CombatDataTable({ actors, turnId, onActorSelect, onCellC
             className={classes.dataGrid}
             rows={actors}
             columns={columns}
-            sortModel={sortModel}
+            // sortModel={sortModel}
             hideFooterPagination
             onCellEditCommit={onCellCommit}
             getRowClassName={(rowId) => {

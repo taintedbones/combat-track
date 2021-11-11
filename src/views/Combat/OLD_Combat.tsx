@@ -232,7 +232,7 @@ export default function Combat() {
         onBackClicked={handleBackClicked}
         onAddActor={handleAddClicked}
         onDeleteActor={handleDeleteActor}
-        isValidActors={isValidCombat}
+        isValidCombat={isValidCombat}
         currentTurnName={currTurnName}
         turnIndex={turnIndex}
         roundNum={roundNum}
