@@ -45,7 +45,7 @@ import {
     },
   };
   
-  export default function EditActorForm({ open, setOpen, actor }) {
+  export default function EditActorForm({ open, setOpen, actor, user }) {
     const [editedActor, setEditedActor] = useState<Actor>(actor);
   
     const handleClose = () => {
@@ -55,7 +55,7 @@ import {
     const handleFormSubmit = (event) => {
       event.preventDefault();
       console.log('New Actor: ', actor);
-      editActor(editedActor);
+      editActor(editedActor, user.uid);
       handleClose();
     };
   
@@ -149,6 +149,7 @@ import {
                     <MenuItem value={'creature'}>Creature</MenuItem>
                     <MenuItem value={'companion'}>Companion</MenuItem>
                     <MenuItem value={'effect'}>Effect</MenuItem>
+                    <MenuItem value={'party'}>Party</MenuItem>
                   </Select>
                 </Grid>
                 <Grid item xs={5}>

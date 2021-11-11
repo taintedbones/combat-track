@@ -227,12 +227,15 @@ export const useCustomActors = () => {
         if (user === false) {
           return;
         }
-
         const docRef = doc(database, 'users', user.uid);
         console.log(docRef);
 
         const snapshot = await getDoc(docRef);
-        const actorRefsList = snapshot.get('actors');
+        const customActorRefs = snapshot.get('actors');
+        const partyRefs = snapshot.get('party');
+        const actorRefsList = partyRefs.concat(customActorRefs);
+
+        console.log('useCustomActors - actorRefList: ', actorRefsList);
 
         let actorList = await Promise.all(
           actorRefsList.map(async (actorRef, idx) => {
@@ -274,11 +277,17 @@ export const addActor = async (newActor, uid) => {
   try {
     const docRef = await addDoc(collection(database, 'actors'), newActor);
     console.log('Added doc: ', docRef.id);
-
     const userRef = doc(database, 'users', uid);
-    await updateDoc(userRef, {
-      actors: arrayUnion(docRef),
-    });
+
+    if (newActor.type === 'party') {
+      await updateDoc(userRef, {
+        party: arrayUnion(docRef),
+      });
+    } else {
+      await updateDoc(userRef, {
+        actors: arrayUnion(docRef),
+      });
+    }
   } catch (err) {
     console.error(err);
   }
@@ -286,33 +295,63 @@ export const addActor = async (newActor, uid) => {
 
 export const deleteActor = async (actor, uid) => {
   try {
-    const docRef = doc(database, 'actors', actor.doc)
-    console.log("actor to be deleted: ", docRef);
+    const docRef = doc(database, 'actors', actor.doc);
+    console.log('actor to be deleted: ', docRef);
     await deleteDoc(docRef);
     const userRef = doc(database, 'users', uid);
 
-    await updateDoc(userRef, {
-      actors: arrayRemove(docRef),
-    });
+    if (actor.type === 'party') {
+      await updateDoc(userRef, {
+        party: arrayRemove(docRef),
+      });
+    } else {
+      await updateDoc(userRef, {
+        actors: arrayRemove(docRef),
+      });
+    }
   } catch (err) {
     console.error(err);
   }
 };
 
 // editActor()
-export const editActor = async (actor) => {
+export const editActor = async (actor, uid) => {
   try {
     const docRef = doc(database, 'actors', actor.doc);
-    console.log("actor to be edited: ", docRef);
+    const originalActor = await getActorFromRef(docRef.path);
+    const userRef = doc(database, 'users', uid);
+    console.log('actor to be edited: ', docRef);
+
     await updateDoc(docRef, {
       name: actor.name,
       ac: actor.ac,
       dc: actor.dc,
       hp: actor.hp,
       notes: actor.notes,
-      type: actor.type
+      type: actor.type,
     });
-    console.log("actor successfully edited");
+
+    if(actor !== undefined && originalActor !== undefined) {
+      if (actor.type === 'party' && originalActor.type !== 'party') {
+        // remove ref from actors list & add to party list
+        await updateDoc(userRef, {
+          actors: arrayRemove(docRef),
+        });
+        await updateDoc(userRef, {
+          party: arrayUnion(docRef),
+        });
+      }
+      else if(actor.type !== 'party' && originalActor.type === 'party') {
+        // remove ref from party list & add to actors list
+        await updateDoc(userRef, {
+          party: arrayRemove(docRef),
+        });
+        await updateDoc(userRef, {
+          actors: arrayUnion(docRef),
+        });
+      }
+    }
+    console.log('actor successfully edited');
   } catch (err) {
     console.error(err);
   }

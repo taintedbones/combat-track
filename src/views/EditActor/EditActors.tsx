@@ -13,7 +13,7 @@ export default function EditActors() {
   console.log('Rerender: EditActors()');
   const classes = useStyles();
   const { user } = useAuth();
-  const { error, loading, customActors } = useCustomActors();
+  const { loading, customActors } = useCustomActors();
   const [selectedActor, setSelectedActor] = useState<any>();
   const [addTriggered, setAddTriggered] = useState<boolean>(false);
   const [editTriggered, setEditTriggered] = useState<boolean>(false);
@@ -54,6 +54,7 @@ export default function EditActors() {
         open={editTriggered}
         setOpen={setEditTriggered}
         actor={selectedActor}
+        user={user}
       />
     </React.Fragment>
   );

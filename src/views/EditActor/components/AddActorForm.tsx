@@ -47,6 +47,7 @@ const style = {
 
 export default function AddActorForm({ open, setOpen, user }) {
   const { changeMade, setChangeMade} = useCustomActors();
+  const [type, setType] = useState<string>('creature');
   const [actor, setActor] = useState<Actor>({
     name: '',
     ac: 0,
@@ -146,17 +147,19 @@ export default function AddActorForm({ open, setOpen, user }) {
               <Grid item xs={10}>
                 <Select
                   label="Type"
-                  value={'creature'}
+                  value={type}
                   sx={style.select}
                   onChange={(e) => {
                     let temp = actor;
                     temp.type = e.target.value;
                     setActor(temp);
+                    setType(e.target.value);
                   }}
                 >
                   <MenuItem value={'creature'}>Creature</MenuItem>
                   <MenuItem value={'companion'}>Companion</MenuItem>
                   <MenuItem value={'effect'}>Effect</MenuItem>
+                  <MenuItem value={'party'}>Party</MenuItem>
                 </Select>
               </Grid>
               <Grid item xs={5}>
