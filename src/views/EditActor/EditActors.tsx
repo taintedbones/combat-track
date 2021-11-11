@@ -14,9 +14,10 @@ export default function EditActors() {
   const classes = useStyles();
   const { user } = useAuth();
   const { loading, customActors } = useCustomActors();
-  const [selectedActor, setSelectedActor] = useState<any>();
+  const [selectedActor, setSelectedActor] = useState<any>(undefined);
   const [addTriggered, setAddTriggered] = useState<boolean>(false);
   const [editTriggered, setEditTriggered] = useState<boolean>(false);
+  const [buttonDisabled, setButtonDisabled] = useState<boolean>(true);
 
   const handleAddClicked = () => {
     setAddTriggered(true);
@@ -38,8 +39,18 @@ export default function EditActors() {
     event: MuiEvent<React.SyntheticEvent>,
     details: GridCallbackDetails
   ) => {
-    setSelectedActor(params.row);
-    console.log('Selected actor: ', params.row);
+
+    if(selectedActor === undefined) {
+      setSelectedActor(params.row);
+      setButtonDisabled(false);
+    }
+    else if(params.id === selectedActor.id) {
+      setSelectedActor(undefined);
+      setButtonDisabled(true);
+    }
+    else {
+      setSelectedActor(params.row);
+    }
   };
 
   const renderAddActorForm = (
@@ -61,7 +72,7 @@ export default function EditActors() {
 
   useEffect(() => {
     console.log('EditActors -> useEffect()');
-  }, [user, customActors]); // useEffect for combat events
+  }, [user, customActors, buttonDisabled]); // useEffect for combat events
 
   return (
     <div className={classes.root}>
@@ -73,12 +84,14 @@ export default function EditActors() {
             actors={customActors}
             loading={loading}
             onSelect={handleSelectActor}
+            selected={selectedActor}
           />
         </Grid>
         <ActorToolbar
           onAddClicked={handleAddClicked}
           onDeleteClicked={handleDeleteClicked}
           onEditClicked={handleEditClicked}
+          isDisabled={buttonDisabled}
         />
         {addTriggered && renderAddActorForm}
         {editTriggered && renderEditActorForm}
