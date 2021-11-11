@@ -1,7 +1,7 @@
 import { Button, Grid } from '@mui/material';
 import React from 'react';
 
-export default function ActorToolbar({ onAddClicked }) {
+export default function ActorToolbar({ onAddClicked, onDeleteClicked }) {
   return (
       <React.Fragment>
         <Grid item xs>
@@ -10,7 +10,7 @@ export default function ActorToolbar({ onAddClicked }) {
           </Button>
         </Grid>
         <Grid item xs>
-          <Button variant="contained" fullWidth>
+          <Button variant="contained" fullWidth onClick={onDeleteClicked}>
             Delete Actor
           </Button>
         </Grid>
