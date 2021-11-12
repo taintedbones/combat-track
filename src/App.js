@@ -8,16 +8,16 @@ function App() {
   return (
     <Router>
       <Navbar />
-      <Route exact path='/'>
-        <Redirect to='/combat' />
+      <Route path='/combat-track/'>
+        <Redirect to='/combat-track/combat' />
       </Route>
-      <Route exact path='/combat'>
+      <Route path='/combat-track/combat'>
         <Combat />
       </Route>
-      <Route exact path='/actors'>
+      <Route path='/combat-track/actors'>
         <EditActors />
       </Route>
-      <Route exact path='/scenarios'>
+      <Route path='/combat-track/scenarios'>
         <EditScenarios />
       </Route>
     </Router>
