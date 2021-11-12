@@ -3,6 +3,7 @@ import { Box, AppBar, Toolbar, Button, IconButton, Typography, useTheme } from "
 import { Menu as MenuIcon } from "@mui/icons-material";
 import Menu from "./components/Menu";
 import { checkUserExists, addUser } from "../../hooks/useDatabase";
+import { GiDiceTwentyFacesTwenty } from "react-icons/gi";
 
 import useAuth from "../../hooks/useAuth";
 
@@ -42,8 +43,11 @@ export default function Navbar() {
           sx={{ backgroundColor: `${theme.palette.secondary.light}`, color: `${theme.palette.secondary.contrastText}` }}
         >
           <Toolbar>
+            <Typography variant="h4" component="div">
+              <GiDiceTwentyFacesTwenty />
+            </Typography>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              DnD Tracker
+              DnD Combat Tracker
             </Typography>
 
             {user ? (
