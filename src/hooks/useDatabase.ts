@@ -268,6 +268,54 @@ export const useCustomActors = () => {
   return { error, changeMade, setChangeMade, loading, customActors };
 };
 
+export const useCustomScenario = () => {
+  const { user } = UseAuth();
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [scenario, setScenario] = useState<any[]>([]);
+  const [scenarioName, setScenarioName] = useState<string>('skeletons');
+
+  const updateScenarioName = (scenarioName) => {
+    setScenarioName(scenarioName);
+  };
+
+  useEffect(() => {
+    const fetchScenario = async () => {
+      setLoading(true);
+      try {
+        const docRef = doc(database, "scenarios", scenarioName);
+        const scenarioSnapshot = await getDoc(docRef);
+        const actorRefsList = scenarioSnapshot.get("actors");
+
+        const actorList = await Promise.all(
+          actorRefsList.map(async (actorRef, idx) => {
+            try {
+              const actor = await getActorFromRef(actorRef.path);
+              return {
+                ...actor,
+                id: idx,
+                doc: actorRef.path
+              };
+            } catch (err) {
+              console.log(err);
+            }
+          })
+        );
+
+        setScenario(actorList);
+        setLoading(false);
+      } catch (error) {
+        console.error(error);
+        setError(true);
+        setLoading(false);
+      }
+    };
+    fetchScenario();
+  }, [scenarioName]);
+
+  return { error, loading, scenario, updateScenarioName, setScenario };
+};
+
 export const addActor = async (newActor, uid) => {
   try {
     const docRef = await addDoc(collection(database, 'actors'), newActor);
