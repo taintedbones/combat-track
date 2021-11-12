@@ -8,7 +8,7 @@ const firebaseApp = initializeApp({
   projectId: "combat-track",
   storageBucket: "combat-track.appspot.com",
   messagingSenderId: "725526804018",
-  appId: "1:725526804018:web:d4fdf9e7e445103cee6e2b",
+  appId: "1:725526804018:web:ca2510bb0726889eee6e2b"
 });
 
 

@@ -37,15 +37,66 @@ export const checkUserExists = async (userUid) => {
 };
 
 async function getListOfScenarios() {
-  const snapshot = await getDocs(collection(database, 'scenarios'));
+  const { user } = UseAuth();
+  const scenariosRef = collection(database, 'scenarios');
+  const q = query(scenariosRef, where('custom', '==', false));
+  const scenariosSnapshot = await getDocs(q);
+
   let scenarioList: any[] = [];
-  snapshot.forEach((doc) => scenarioList.push(doc.id));
+  scenariosSnapshot.forEach((doc) => scenarioList.push(doc.id));
+
+  // if (user !== false) {
+  //   const userRef = doc(database, 'users', user.uid);
+  //   const userSnapshot = await getDoc(userRef);
+  //   const customScenarioRefs = userSnapshot.get('scenarios');
+  //   customScenarioRefs.forEach((doc) => {
+      
+  //   });
+  // }
+
+  return scenarioList;
+}
+
+export const getListOfCustomScenarios = async () => {
+  const { user } = UseAuth();
+  let scenarioList = [];
+
+  if (user !== false) {
+    const userRef = doc(database, 'users', user.uid);
+    const userSnapshot = await getDoc(userRef);
+    const customScenarioRefs = userSnapshot.get('scenarios');
+    
+    customScenarioRefs.forEach()
+
+    scenarioList = await Promise.all(
+      customScenarioRefs.map(async (scenarioRef) => {
+        try {
+          const scenario = await getScenarioFromRef(scenarioRef.path);
+          const docName = scenarioRef.path.split('/')[1];
+          return {
+            ...scenario,
+            doc: docName,
+          };
+        } catch (err) {
+          console.error(err);
+        }
+      })
+    );
+  }
+
   return scenarioList;
 }
 
 async function getActorFromRef(refPath) {
   const docName = refPath.split('/')[1];
   const docRef = doc(database, 'actors', docName);
+  const snapshot = await getDoc(docRef);
+  return snapshot.data();
+}
+
+async function getScenarioFromRef(refPath) {
+  const docName = refPath.split('/')[1];
+  const docRef = doc(database, 'scenarios', docName);
   const snapshot = await getDoc(docRef);
   return snapshot.data();
 }
@@ -128,6 +179,7 @@ export const useActors = () => {
 };
 
 export const useScenario = () => {
+  const { user } = UseAuth();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [scenario, setScenario] = useState<any[]>([]);
@@ -143,7 +195,20 @@ export const useScenario = () => {
       try {
         const docRef = doc(database, "scenarios", scenarioName);
         const scenarioSnapshot = await getDoc(docRef);
-        const actorRefsList = scenarioSnapshot.get("actors");
+        const scenarioActorRefsList = scenarioSnapshot.get("actors");
+        let actorRefsList;
+
+        if(user !== false) {
+          const userRef = doc(database, 'users', user.uid);
+          const userSnapshot = await getDoc(userRef);
+          const partyRefList = userSnapshot.get("party");
+          actorRefsList = partyRefList.concat(scenarioActorRefsList);
+        }
+        else {
+          actorRefsList = scenarioActorRefsList.slice();
+        }
+
+        console.log(actorRefsList);
 
         const actorList = await Promise.all(
           actorRefsList.map(async (actorRef, idx) => {
