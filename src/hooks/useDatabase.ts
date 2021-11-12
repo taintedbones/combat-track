@@ -282,7 +282,7 @@ export const useCustomActors = () => {
   const { user } = UseAuth();
   const [error, setError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
-  const [changeMade, setChangeMade] = useState<boolean>(false);
+  const [changeMade, setChangeMade] = useState(false);
   const [customActors, setCustomActors] = useState<any[]>([]);
   // const [snapshot, setSnapshot] = useState<any>();
 

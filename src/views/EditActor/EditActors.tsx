@@ -15,12 +15,13 @@ export default function EditActors() {
   console.log("Rerender: EditActors()");
   const classes = useStyles();
   const { user } = useAuth();
-  const { loading, customActors } = useCustomActors();
+  const { loading, customActors, changeMade, setChangeMade } = useCustomActors();
   const [selectedActor, setSelectedActor] = useState<any>(undefined);
   const [addTriggered, setAddTriggered] = useState<boolean>(false);
   const [editTriggered, setEditTriggered] = useState<boolean>(false);
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(true);
   const [alertTriggered, setAlertTriggered] = useState<boolean>(false);
+  const [refresh, setRefresh] = useState(0);
 
   const handleAddClicked = () => {
     setAddTriggered(true);
@@ -40,6 +41,8 @@ export default function EditActors() {
       deleteActor(selectedActor, user.uid);
     }
     setAlertTriggered(false);
+    setRefresh(refresh + 1);
+    changeMade? setChangeMade(false) : setChangeMade(true);
   };
 
   const handleSelectActor = (
@@ -84,7 +87,7 @@ export default function EditActors() {
 
   useEffect(() => {
     console.log("EditActors -> useEffect()");
-  }, [user, customActors, buttonDisabled]); // useEffect for combat events
+  }, [user, customActors, buttonDisabled, refresh]); // useEffect for combat events
 
   return (
     <div className={classes.root}>
