@@ -15,7 +15,7 @@ export default function EditActors() {
   console.log("Rerender: EditActors()");
   const classes = useStyles();
   const { user } = useAuth();
-  const { loading, customActors, changeMade, setChangeMade } = useCustomActors();
+  const { loading, customActors } = useCustomActors();
   const [selectedActor, setSelectedActor] = useState<any>(undefined);
   const [addTriggered, setAddTriggered] = useState<boolean>(false);
   const [editTriggered, setEditTriggered] = useState<boolean>(false);
@@ -42,7 +42,6 @@ export default function EditActors() {
     }
     setAlertTriggered(false);
     setRefresh(refresh + 1);
-    changeMade? setChangeMade(false) : setChangeMade(true);
   };
 
   const handleSelectActor = (

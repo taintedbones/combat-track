@@ -336,7 +336,7 @@ export const useCustomActors = () => {
       setLoading(false);
       setCustomActors([]);
     }
-  }, [user, changeMade]);
+  }, [user]);
 
   return { error, changeMade, setChangeMade, loading, customActors };
 };
