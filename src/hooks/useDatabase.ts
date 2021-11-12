@@ -59,29 +59,23 @@ async function getListOfScenarios() {
 
 export const getListOfCustomScenarios = async () => {
   const { user } = UseAuth();
-  let scenarioList = [];
+  let scenarioList: any[] = [];
 
   if (user !== false) {
     const userRef = doc(database, 'users', user.uid);
     const userSnapshot = await getDoc(userRef);
     const customScenarioRefs = userSnapshot.get('scenarios');
     
-    customScenarioRefs.forEach()
-
-    scenarioList = await Promise.all(
-      customScenarioRefs.map(async (scenarioRef) => {
-        try {
-          const scenario = await getScenarioFromRef(scenarioRef.path);
-          const docName = scenarioRef.path.split('/')[1];
-          return {
-            ...scenario,
-            doc: docName,
-          };
-        } catch (err) {
-          console.error(err);
+    customScenarioRefs.forEach(async (scenarioRef) => {
+      try {
+        const scenario = await getScenarioFromRef(scenarioRef.path);
+        if(scenario !== undefined) {
+          scenarioList.push({name: scenario.name, doc: scenarioRef.path});
         }
-      })
-    );
+      } catch (err) {
+        console.error(err);
+      }
+    })
   }
 
   return scenarioList;
@@ -233,7 +227,7 @@ export const useScenario = () => {
       }
     };
     fetchScenario();
-  }, [scenarioName]);
+  }, [scenarioName, user]);
 
   return { error, loading, scenario, updateScenarioName, setScenario };
 };

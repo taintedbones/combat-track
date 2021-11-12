@@ -5,9 +5,11 @@ import { useScenario } from "../../hooks/useDatabase";
 import { Grid } from "@mui/material";
 import CombatSetup from "./components/CombatSetup/CombatSetup";
 import CombatStart from "./components/CombatStart/CombatStart";
+import useAuth from "../../hooks/useAuth";
 
 export default function Combat() {
   const classes = useStyles();
+  const { user } = useAuth();
   const { loading, scenario, updateScenarioName, setScenario } = useScenario();
   const [scenarioName, setScenarioName] = useState("skeletons");
   const [combatStarted, setCombatStarted] = useState(false);
@@ -19,7 +21,7 @@ export default function Combat() {
   useEffect(() => {
     setSetupActors(scenario);
     setCombatActors(scenario); // set to combat as well for backup
-  }, [scenario]);
+  }, [scenario, user]);
 
   const handleScenarioChange = (scenarioName: string) => {
     updateScenarioName(scenarioName);
