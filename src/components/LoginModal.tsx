@@ -1,5 +1,6 @@
 import { Box, Typography, Modal, Divider, TextField, Button, Link } from "@mui/material";
 import useAuth from "../hooks/useAuth";
+import { checkUserExists, addUser } from "../hooks/useDatabase";
 
 const style = {
   position: "absolute" as "absolute",
@@ -18,8 +19,16 @@ export default function LoginModal({ open, handleClose }) {
   const { signin } = useAuth();
 
   const handleLogin = async () => {
-    const user = await signin();
-    console.log(user);
+    try {
+      const user = await signin();
+      const exists = (await checkUserExists(user.uid)).valueOf();
+      if (!exists) {
+        addUser(user);
+        console.log(user.displayName, " was successfully added to users!");
+      }
+    } catch (error) {
+      console.error("There was an error logging into your google account. Try again.");
+    }
   };
 
   return (
