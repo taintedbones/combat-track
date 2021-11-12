@@ -3,6 +3,13 @@ import { GridColDef } from "@mui/x-data-grid";
 //TODO: CHANGE THIS FOR ACTOR FIELDS
 export const columns: GridColDef[] = [
   {
+    field: "name",
+    headerName: "Name",
+    flex: 1,
+    headerClassName: "col-header",
+    editable: true,
+  },
+  {
     field: "ac",
     headerName: "AC",
     flex: 1,
@@ -24,15 +31,8 @@ export const columns: GridColDef[] = [
     editable: true,
   },
   {
-    field: "initiative",
-    headerName: "Initiative",
-    flex: 1,
-    headerClassName: "col-header",
-    editable: true,
-  },
-  {
-    field: "name",
-    headerName: "Name",
+    field: "type",
+    headerName: "Type",
     flex: 1,
     headerClassName: "col-header",
     editable: true,
@@ -40,14 +40,7 @@ export const columns: GridColDef[] = [
   {
     field: "notes",
     headerName: "Notes",
-    flex: 1,
-    headerClassName: "col-header",
-    editable: true,
-  },
-  {
-    field: "type",
-    headerName: "type",
-    flex: 1,
+    flex: 3,
     headerClassName: "col-header",
     editable: true,
   },

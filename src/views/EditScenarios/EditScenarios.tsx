@@ -4,6 +4,7 @@ import ScenarioToolbar from "./components/ScenarioToolbar";
 import { useStyles } from "../../ThemeProvider";
 
 export default function EditActors() {
+
   const classes = useStyles();
   return (
     <div className={classes.root}>

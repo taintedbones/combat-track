@@ -2,22 +2,25 @@ import { useState } from "react";
 import { Box, AppBar, Toolbar, Button, IconButton, Typography, useTheme } from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import Menu from "./components/Menu";
+import { checkUserExists, addUser } from "../../hooks/useDatabase";
+import { GiDiceTwentyFacesTwenty } from "react-icons/gi";
 
 import useAuth from "../../hooks/useAuth";
-import { User } from "@firebase/auth";
 
 export default function Navbar() {
   const theme = useTheme();
-  const [user, setUser] = useState<User | false>(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { signin, signout } = useAuth();
+  const { user, signin, signout } = useAuth();
 
   // callback to authenticate user
   const login = async () => {
     try {
       const user = await signin();
-      console.log(user);
-      setUser(user);
+      const exists = (await checkUserExists(user.uid)).valueOf();
+      if(!exists){
+        addUser(user);
+        console.log(user.displayName, " was successfully added to users!");
+      }
     } catch (error) {
       console.error("There was an error logging into your google account. Try again.");
     }
@@ -26,7 +29,6 @@ export default function Navbar() {
   const logout = async () => {
     try {
       await signout();
-      setUser(false);
     } catch (error) {
       console.error("There was an error logging out of your google account. Try again.");
     }
@@ -41,8 +43,11 @@ export default function Navbar() {
           sx={{ backgroundColor: `${theme.palette.secondary.light}`, color: `${theme.palette.secondary.contrastText}` }}
         >
           <Toolbar>
+            <Typography variant="h4" component="div">
+              <GiDiceTwentyFacesTwenty />
+            </Typography>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              DnD Tracker
+              DnD Combat Tracker
             </Typography>
 
             {user ? (
