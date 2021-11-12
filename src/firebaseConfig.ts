@@ -3,7 +3,7 @@ import { getFirestore } from "firebase/firestore";
 
 // change details to be stored in env file instead of hard coded
 const firebaseApp = initializeApp({
-  apiKey: "AIzaSyBwzDeaFXRPFEqQhk1kWM2YqL7Pr6lL7aY",
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: "combat-track.firebaseapp.com",
   projectId: "combat-track",
   storageBucket: "combat-track.appspot.com",
