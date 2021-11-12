@@ -50,7 +50,7 @@ async function getListOfScenarios() {
   //   const userSnapshot = await getDoc(userRef);
   //   const customScenarioRefs = userSnapshot.get('scenarios');
   //   customScenarioRefs.forEach((doc) => {
-      
+
   //   });
   // }
 
@@ -65,21 +65,21 @@ export const getListOfCustomScenarios = async () => {
     const userRef = doc(database, 'users', user.uid);
     const userSnapshot = await getDoc(userRef);
     const customScenarioRefs = userSnapshot.get('scenarios');
-    
+
     customScenarioRefs.forEach(async (scenarioRef) => {
       try {
         const scenario = await getScenarioFromRef(scenarioRef.path);
-        if(scenario !== undefined) {
-          scenarioList.push({name: scenario.name, doc: scenarioRef.path});
+        if (scenario !== undefined) {
+          scenarioList.push({ name: scenario.name, doc: scenarioRef.path });
         }
       } catch (err) {
         console.error(err);
       }
-    })
+    });
   }
 
   return scenarioList;
-}
+};
 
 async function getActorFromRef(refPath) {
   const docName = refPath.split('/')[1];
@@ -135,6 +135,7 @@ export const addUser = async (user: User) => {
 };
 
 export const useActors = () => {
+  const { user } = UseAuth();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [actors, setActors] = useState<DocumentData[]>([]);
@@ -146,20 +147,36 @@ export const useActors = () => {
         const actorsRef = collection(database, 'actors');
         const q = query(actorsRef, where('custom', '==', false));
         const actorsSnapshot = await getDocs(q);
-        const actorsList = actorsSnapshot.docs.map((doc) => doc.data()); // create list map of actors from snapshot
-        const actorsIdList = actorsList.map((actor, idx) => Object.defineProperty(actor, "id", { value: idx }));
-        const sortedList = actorsIdList.sort((a, b) => {
-          if (a.initiative === b.initiative) {
-            return b.name - a.name;
-          } else {
-            return b.initiative - a.initiative;
-          }
-        });
-        const temp = sortedList.map((actor, index) => Object.defineProperty(actor, "index", { value: index }));
-        // console.log(actorsIdList);
+        const actorsList = actorsSnapshot.docs.map((doc) => doc.data());
+        let refsList: any[] = [];
+
+        if (user !== false) {
+          const userRef = doc(database, 'users', user.uid);
+          const userSnapshot = await getDoc(userRef);
+          const customActorRefsList = userSnapshot.get('actors');
+          const customActorList = await Promise.all(
+            customActorRefsList.map(async (actorRef) => {
+              try {
+                const actor = await getActorFromRef(actorRef.path);
+                return {
+                  ...actor,
+                };
+              } catch (err) {
+                console.log(err);
+              }
+            })
+          );
+          refsList = actorsList.concat(customActorList);
+        } else {
+          refsList = actorsList.slice();
+        }
+        const actorsIdList = refsList.map((actor, idx) =>
+          Object.defineProperty(actor, 'id', { value: idx })
+        );
+
         setLoading(false);
-        setActors(temp);
-        return sortedList;
+        setActors(actorsIdList);
+        return refsList;
       } catch (error) {
         console.error(error);
         setLoading(false);
@@ -167,7 +184,7 @@ export const useActors = () => {
       }
     };
     fetchActors();
-  }, [setError, setLoading, setActors]);
+  }, [setError, setLoading, setActors, user]);
 
   return { error, loading, actors };
 };
@@ -187,22 +204,19 @@ export const useScenario = () => {
     const fetchScenario = async () => {
       setLoading(true);
       try {
-        const docRef = doc(database, "scenarios", scenarioName);
+        const docRef = doc(database, 'scenarios', scenarioName);
         const scenarioSnapshot = await getDoc(docRef);
-        const scenarioActorRefsList = scenarioSnapshot.get("actors");
+        const scenarioActorRefsList = scenarioSnapshot.get('actors');
         let actorRefsList;
 
-        if(user !== false) {
+        if (user !== false) {
           const userRef = doc(database, 'users', user.uid);
           const userSnapshot = await getDoc(userRef);
-          const partyRefList = userSnapshot.get("party");
+          const partyRefList = userSnapshot.get('party');
           actorRefsList = partyRefList.concat(scenarioActorRefsList);
-        }
-        else {
+        } else {
           actorRefsList = scenarioActorRefsList.slice();
         }
-
-        console.log(actorRefsList);
 
         const actorList = await Promise.all(
           actorRefsList.map(async (actorRef, idx) => {
@@ -241,7 +255,7 @@ export const useUsers = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const usersCol = collection(database, "users");
+        const usersCol = collection(database, 'users');
         const usersSnapshot = await getDocs(usersCol);
         const usersList = usersSnapshot.docs.map((doc) => doc.data());
         const usersIdList = usersList.map((actor, index) => ({
@@ -342,9 +356,9 @@ export const useCustomScenario = () => {
     const fetchScenario = async () => {
       setLoading(true);
       try {
-        const docRef = doc(database, "scenarios", scenarioName);
+        const docRef = doc(database, 'scenarios', scenarioName);
         const scenarioSnapshot = await getDoc(docRef);
-        const actorRefsList = scenarioSnapshot.get("actors");
+        const actorRefsList = scenarioSnapshot.get('actors');
 
         const actorList = await Promise.all(
           actorRefsList.map(async (actorRef, idx) => {
@@ -353,7 +367,7 @@ export const useCustomScenario = () => {
               return {
                 ...actor,
                 id: idx,
-                doc: actorRef.path
+                doc: actorRef.path,
               };
             } catch (err) {
               console.log(err);
@@ -433,7 +447,7 @@ export const editActor = async (actor, uid) => {
       type: actor.type,
     });
 
-    if(actor !== undefined && originalActor !== undefined) {
+    if (actor !== undefined && originalActor !== undefined) {
       if (actor.type === 'party' && originalActor.type !== 'party') {
         // remove ref from actors list & add to party list
         await updateDoc(userRef, {
@@ -442,8 +456,7 @@ export const editActor = async (actor, uid) => {
         await updateDoc(userRef, {
           party: arrayUnion(docRef),
         });
-      }
-      else if(actor.type !== 'party' && originalActor.type === 'party') {
+      } else if (actor.type !== 'party' && originalActor.type === 'party') {
         // remove ref from party list & add to actors list
         await updateDoc(userRef, {
           party: arrayRemove(docRef),
