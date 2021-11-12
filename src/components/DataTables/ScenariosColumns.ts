@@ -46,7 +46,7 @@ export const columns: GridColDef[] = [
   },
   {
     field: "type",
-    headerName: "type",
+    headerName: "Type",
     flex: 1,
     headerClassName: "col-header",
     editable: true,

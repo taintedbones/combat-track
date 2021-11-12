@@ -9,23 +9,23 @@ export interface MenuItem {
 export const MenuItems: MenuItem[] = [
   {
     title: "Combat",
-    url: "/combat-track/combat",
+    url: "/combat",
     icon: Groups,
   },
   {
     title: "Edit Actors",
-    url: "/combat-track/actors",
+    url: "/actors",
     icon: AccessibilityNew,
   },
   {
     title: "Edit Scenarios",
-    url: "/combat-track/scenarios",
+    url: "/scenarios",
     icon: GridView,
   },
 
   {
     title: "About",
-    url: "/combat-track/about",
+    url: "/about",
     icon: Info,
   },
 ];
