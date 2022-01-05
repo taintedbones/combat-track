@@ -1,26 +1,21 @@
-import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import Combat from './views/Combat/Combat';
 import Navbar from './components/Navbar/Navbar';
+import HomePage from './views/HomePage';
 import EditActors from './views/EditActor/EditActors';
 import EditScenarios from './views/EditScenarios/EditScenarios';
 
 function App() {
   return (
-    <Router>
+    <HashRouter basename="/">
       <Navbar />
-      <Route exact path='/'>
-        <Redirect to='/combat' />
-      </Route>
-      <Route exact path='/combat'>
-        <Combat />
-      </Route>
-      <Route exact path='/actors'>
-        <EditActors />
-      </Route>
-      <Route exact path='/scenarios'>
-        <EditScenarios />
-      </Route>
-    </Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/combat" element={<Combat />} />
+        <Route path="/actors" element={<EditActors />} />
+        <Route path="/scenarios" element={<EditScenarios />} />
+      </Routes>
+    </HashRouter>
   );
 }
 
