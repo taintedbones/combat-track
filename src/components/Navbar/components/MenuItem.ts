@@ -1,4 +1,4 @@
-import { AccessibilityNew, GridView, Groups, Info } from "@mui/icons-material";
+import { AccessibilityNew, GridView, Groups, Info, Home } from "@mui/icons-material";
 
 export interface MenuItem {
   title: string;
@@ -7,6 +7,11 @@ export interface MenuItem {
 }
 
 export const MenuItems: MenuItem[] = [
+  {
+    title: "Home",
+    url: "/",
+    icon: Home,
+  },
   {
     title: "Combat",
     url: "/combat",
