@@ -41,3 +41,16 @@
     transform: rotate(360deg);
   }
 }
+
+@font-face {
+  font-family:"scurlock";
+  src: local("scurlock"), url("../views/assets/SC______.TTF");
+}
+@font-face {
+  font-family:"dungeon";
+  src: local("dungeon"), url("../views/assets/DUNGRG__.TTF");
+}
+@font-face {
+  font-family:"breathefire";
+  src: local("breathefire"), url("../views/assets/Breathe\ Fire.otf");
+}

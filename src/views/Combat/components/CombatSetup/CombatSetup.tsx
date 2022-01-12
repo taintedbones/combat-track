@@ -34,7 +34,6 @@ export default function CombatSetup({
 
   const handleSelectActor = (params: GridRowParams) => {
     setSelectedActor(params.row);
-    // console.log("Selected actor: ", params.row);
   };
 
   const handleAddActor = (actor) => {
@@ -82,7 +81,7 @@ export default function CombatSetup({
         return actor.id !== selectedActor.id;
       });
       setSetupActors([...temp]);
-      console.log("After delete: ", [...temp]);
+      // console.log("After delete: ", [...temp]);
     }
   };
 
